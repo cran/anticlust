@@ -10,29 +10,34 @@ anticlustering(
   objective = "diversity",
   method = "exchange",
   preclustering = FALSE,
-  categories = NULL
+  categories = NULL,
+  repetitions = NULL
 )
 }
 \arguments{
-\item{x}{The data input. Can be one of two structures: (1) A feature
-matrix where rows correspond to elements and columns correspond
-to variables (a single numeric variable can be passed as a
-vector). (2) An N x N matrix dissimilarity matrix; can be an
-object of class \code{dist} (e.g., returned by
+\item{x}{The data input. Can be one of two structures: (1) A
+feature matrix where rows correspond to elements and columns
+correspond to variables (a single numeric variable can be
+passed as a vector). (2) An N x N matrix dissimilarity matrix;
+can be an object of class \code{dist} (e.g., returned by
 \code{\link{dist}} or \code{\link{as.dist}}) or a \code{matrix}
 where the entries of the upper and lower triangular matrix
 represent pairwise dissimilarities.}
 
-\item{K}{How many anticlusters should be created. Alternatively: A
+\item{K}{How many anticlusters should be created. Alternatively: (a) 
+A vector describing the size of each group, or (b) a
 vector of length \code{nrow(x)} describing how elements are
 assigned to anticlusters before the optimization starts.}
 
 \item{objective}{The objective to be maximized. The option
-"diversity" (default) maximizes the cluster editing objective
+"diversity" (default; previously called "distance", which is
+still supported) maximizes the cluster editing objective
 function; the option "variance" maximizes the k-means objective
-function. See Details.}
+function; "kplus" is an extension of k-means
+anticlustering. See Details.}
 
-\item{method}{One of "exchange" (default) or "ilp". See Details.}
+\item{method}{One of "exchange" (default) , "local-maximum", or
+"ilp".  See Details.}
 
 \item{preclustering}{Boolean. Should a preclustering be conducted
 before anticlusters are created? Defaults to \code{FALSE}. See
@@ -40,6 +45,12 @@ Details.}
 
 \item{categories}{A vector, data.frame or matrix representing one
 or several categorical constraints. See Details.}
+
+\item{repetitions}{The number of times a new exchange procedure is
+initiated when \code{method = "exchange"} or \code{method =
+"local-maximum"}.  In the end, the best objective found across
+the repetitions is returned. If this argument is not passed,
+only one repetitition is conducted.}
 }
 \value{
 A vector of length N that assigns a group (i.e, a number
@@ -54,33 +65,40 @@ Papenberg and Klau (2020; <doi:10.1037/met0000301>).
 \details{
 This function is used to solve anticlustering. That is, \code{K}
 groups are created in such a way that all groups are as similar as
-possible. This is accomplished by maximizing instead of minimizing
-a clustering objective function. This function natively supports
-the maximization of two clustering objective functions:
+possible (this usually corresponds to creating groups with high
+within-group heterogeneity). This is accomplished by maximizing
+instead of minimizing a clustering objective function. The
+maximization of three clustering objective functions is natively
+supported (other functions can also defined by the user as
+described below):
 
 \itemize{
   \item{cluster editing `diversity` objective, setting \code{objective = "diversity"} (default)}
   \item{k-means `variance` objective, setting \code{objective = "variance"}}
+  \item{k-plus objective, an extension of the k-means variance criterion,
+        setting \code{objective = "kplus"}}
 }
 
-The k-means objective is the variance within groups---that is, the
+The k-means objective is the within-group variance---that is, the
 sum of the squared distances between each element and its cluster
-center (see \code{\link{variance_objective}}). The cluster editing
-objective is the sum of pairwise distances within groups (see
-\code{\link{diversity_objective}}). Maximizing either of these
-clustering objectives (i.e., anticlustering) will partition the
-data set into similar groups, whereas traditional cluster analysis
-is used to obtain a low between-group similarity.
+center (see \code{\link{variance_objective}}). K-means
+anticlustering focuses on minimizing differences with regard to the
+means of the input variables \code{x}; k-plus \code{objective = "kplus"}
+anticlustering is an extension of this criterion that also tries to
+minimize differences with regard to the standard deviations between
+groups (see \code{\link{kplus_objective}}).
 
-Anticluster editing is also known as the »maximum diverse grouping
-problem« because it maximizes group diversity as measured by the
-sum of pairwise distances. Hence, anticlustering maximizes
-between-group similarity by maximizing within-group
-heterogeneity. In previous versions of this package, \code{method =
-"distance"} was used (and is still supported) to request
-anticluster editing, but now \code{method = "diversity"} is
-preferred because there are several clustering objectives based on
-pairwise distances (e.g., see
+The cluster editing "diversity" objective is the sum of pairwise
+distances within groups (see
+\code{\link{diversity_objective}}). Anticluster editing is also
+known as the »maximum diverse grouping problem« because it
+maximizes group diversity as measured by the sum of pairwise
+distances. Hence, anticlustering maximizes between-group similarity
+by maximizing within-group heterogeneity. In previous versions of
+this package, \code{method = "distance"} was used (and is still
+supported) to request anticluster editing, but now \code{method =
+"diversity"} is preferred because there are several clustering
+objectives based on pairwise distances (e.g., see
 \code{\link{dispersion_objective}}).
 
 If the data input \code{x} is a feature matrix (that is: each row
@@ -91,7 +109,8 @@ a different measure of dissimilarity is preferred, you may pass a
 self-generated dissimiliarity matrix via the argument \code{x}.
 
 In the standard case, groups of equal size are generated. Adjust
-the argument \code{K} to create groups of different size.
+the argument \code{K} to create groups of different size (see
+examples).
 
 \strong{Heuristic anticlustering}
 
@@ -108,12 +127,17 @@ the argument \code{K} (in this case, \code{K} has length
 element. Because each possible swap is investigated for each
 element, the total number of exchanges grows quadratically with
 input size, rendering the exchange method unsuitable for large N.
+When using \code{method = "local-maximum"}, the exchange method is
+repeated until an local maximum is reached. That means after the
+exchange process has been conducted once for each data point, the
+algorithm restarts with the first element and proceeds to conduct
+exchanges until the objective cannot be improved.
 
-When setting \code{preclustering = TRUE}, only the \code{K - 1} most
-similar elements serve as exchange partners, which can dramatically
-speed up the optimization (more information on the preclustering
-option is included below). This option is recommended for larger
-N. For very large N, check out the function
+When setting \code{preclustering = TRUE}, only the \code{K - 1}
+most similar elements serve as exchange partners, which can
+dramatically speed up the optimization (more information on the
+preclustering option is included below). This option is recommended
+for larger N. For very large N, check out the function
 \code{\link{fast_anticlustering}} that was specifically implemented
 to process very large data sets.
 
@@ -167,8 +191,8 @@ described in Papenberg and Klau (2020; (8) - (10), (12) - (13)).
 The argument \code{categories} may induce categorical constraints.
 The grouping variables indicated by \code{categories} will be
 balanced out across anticlusters. Currently, this functionality is
-only available in combination with the exchange method, but not
-with the integer linear programming approach.
+only available in combination with the heuristic methods, but not
+with the exact integer linear programming approach.
 
 \strong{Optimize a custom objective function}
 
@@ -203,13 +227,35 @@ by(schaper2019[, 3:6], anticlusters, function(x) round(apply(x, 2, sd), 2))
 # check that the "room" is balanced across anticlusters:
 table(anticlusters, schaper2019$room)
 
-# You can try to improve the solution using the old output as 
-# the new K argument:
-new_anticlusters <- anticlustering(
+# Use multiple starts of the algorithm to improve the objective and
+# optimize the k-means criterion ("variance")
+anticlusters <- anticlustering(
   schaper2019[, 3:6],
-  K = anticlusters,
-  categories = schaper2019$room
+  objective = "variance",
+  K = 3,
+  categories = schaper2019$room,
+  method = "local-maximum",
+  repetitions = 2
 )
+# Compare means and standard deviations by anticluster
+by(schaper2019[, 3:6], anticlusters, function(x) round(colMeans(x), 2))
+by(schaper2019[, 3:6], anticlusters, function(x) round(apply(x, 2, sd), 2))
+
+# Use different group sizes and optimize the extended k-means
+# criterion ("kplus")
+anticlusters <- anticlustering(
+  schaper2019[, 3:6],
+  objective = "kplus",
+  K = c(24, 24, 48),
+  categories = schaper2019$room,
+  repetitions = 2,
+  method = "local-maximum"
+)
+
+table(anticlusters, schaper2019$room)
+# Compare means and standard deviations by anticluster
+by(schaper2019[, 3:6], anticlusters, function(x) round(colMeans(x), 2))
+by(schaper2019[, 3:6], anticlusters, function(x) round(apply(x, 2, sd), 2))
 
 
 ## Use preclustering and variance (k-means) criterion on large data set

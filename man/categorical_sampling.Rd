@@ -19,16 +19,20 @@ This function can be used to obtain a stratified split of a data set.
 }
 \details{
 This function can be used to obtain a stratified split of a data set. 
-Using this function is like calling a\code{\link{anticlustering}}` with 
-argument `categories` where no optimization is conducted; the categories are 
-just evenly split between samples. Apart from the restriction that categories 
-are balanced between samples, the split is random.
+Using this function is like calling \code{\link{anticlustering}} with 
+argument `categories`, but without optimizing a clustering objective. The
+categories are just evenly split between samples. Apart from the restriction 
+that categories are balanced between samples, the split is random.
 }
 \examples{
 
 data(schaper2019)
 categories <- schaper2019$room
 groups <- categorical_sampling(categories, K = 6)
+table(groups, categories)
+
+# Unequal sized groups
+groups <- categorical_sampling(categories, K = c(24, 24, 48))
 table(groups, categories)
 
 }
