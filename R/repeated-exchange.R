@@ -1,12 +1,8 @@
 
 # Function that repeatedly calls anticlustering and returns best results
-repeat_anticlustering <- function(x, K, objective, categories, preclustering, 
-                                  method, repetitions) {
+repeat_anticlustering <- function(x, K, objective, categories, method, repetitions) {
   
   N <- nrow(x)
-  
-  # Create categorical variable only once at the beginning
-  categories <- get_categorical_constraints(x, K, preclustering, categories)
   
   # Create initial cluster assignment for each `repetition`
   clusters <- list(initialize_clusters(N, K, categories))
@@ -35,6 +31,8 @@ repeat_anticlustering <- function(x, K, objective, categories, preclustering,
     obj_function <- variance_objective
   } else if (objective == "diversity" || objective == "distance") {
     obj_function <- diversity_objective
+  } else if (objective == "dispersion") {
+    obj_function <- dispersion_objective
   }
   
   if (method == "local-maximum") {

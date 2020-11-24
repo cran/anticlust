@@ -11,7 +11,8 @@ anticlustering(
   method = "exchange",
   preclustering = FALSE,
   categories = NULL,
-  repetitions = NULL
+  repetitions = NULL,
+  standardize = FALSE
 )
 }
 \arguments{
@@ -29,12 +30,11 @@ A vector describing the size of each group, or (b) a
 vector of length \code{nrow(x)} describing how elements are
 assigned to anticlusters before the optimization starts.}
 
-\item{objective}{The objective to be maximized. The option
+\item{objective}{The objective to be maximized. The options
 "diversity" (default; previously called "distance", which is
-still supported) maximizes the cluster editing objective
-function; the option "variance" maximizes the k-means objective
-function; "kplus" is an extension of k-means
-anticlustering. See Details.}
+still supported), "variance", "kplus" and "dispersion" are natively
+supported. May also be a user-defined function object that computes
+an objective value given a clustering. See Details.}
 
 \item{method}{One of "exchange" (default) , "local-maximum", or
 "ilp".  See Details.}
@@ -50,7 +50,12 @@ or several categorical constraints. See Details.}
 initiated when \code{method = "exchange"} or \code{method =
 "local-maximum"}.  In the end, the best objective found across
 the repetitions is returned. If this argument is not passed,
-only one repetitition is conducted.}
+only one repetition is conducted.}
+
+\item{standardize}{Boolean. If \code{TRUE} and \code{x} is a feature 
+matrix, the data is standardized through a call to \code{\link{scale}}
+before the optimization starts. This argument is silently ignored 
+if \code{x} is a distance matrix.}
 }
 \value{
 A vector of length N that assigns a group (i.e, a number
@@ -68,7 +73,7 @@ groups are created in such a way that all groups are as similar as
 possible (this usually corresponds to creating groups with high
 within-group heterogeneity). This is accomplished by maximizing
 instead of minimizing a clustering objective function. The
-maximization of three clustering objective functions is natively
+maximization of four clustering objective functions is natively
 supported (other functions can also defined by the user as
 described below):
 
@@ -77,6 +82,8 @@ described below):
   \item{k-means `variance` objective, setting \code{objective = "variance"}}
   \item{k-plus objective, an extension of the k-means variance criterion,
         setting \code{objective = "kplus"}}
+  \item{`dispersion` objective, the minimum distance between any two 
+        elements within the same cluster.}
 }
 
 The k-means objective is the within-group variance---that is, the
@@ -100,6 +107,10 @@ supported) to request anticluster editing, but now \code{method =
 "diversity"} is preferred because there are several clustering
 objectives based on pairwise distances (e.g., see
 \code{\link{dispersion_objective}}).
+
+The "dispersion" is the minimum distance between any two elements within 
+the same cluster; applications that require high within-group heterogeneity
+often require to maximize the dispersion.
 
 If the data input \code{x} is a feature matrix (that is: each row
 is a "case" and each column is a "variable") and the option
@@ -248,8 +259,9 @@ anticlusters <- anticlustering(
   objective = "kplus",
   K = c(24, 24, 48),
   categories = schaper2019$room,
-  repetitions = 2,
-  method = "local-maximum"
+  repetitions = 10,
+  method = "local-maximum",
+  standardize = TRUE
 )
 
 table(anticlusters, schaper2019$room)

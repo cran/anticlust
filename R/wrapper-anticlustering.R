@@ -18,12 +18,11 @@
 #'     A vector describing the size of each group, or (b) a
 #'     vector of length \code{nrow(x)} describing how elements are
 #'     assigned to anticlusters before the optimization starts.
-#' @param objective The objective to be maximized. The option
+#' @param objective The objective to be maximized. The options
 #'     "diversity" (default; previously called "distance", which is
-#'     still supported) maximizes the cluster editing objective
-#'     function; the option "variance" maximizes the k-means objective
-#'     function; "kplus" is an extension of k-means
-#'     anticlustering. See Details.
+#'     still supported), "variance", "kplus" and "dispersion" are natively
+#'     supported. May also be a user-defined function object that computes
+#'     an objective value given a clustering. See Details.
 #' @param method One of "exchange" (default) , "local-maximum", or
 #'     "ilp".  See Details.
 #' @param preclustering Boolean. Should a preclustering be conducted
@@ -35,7 +34,12 @@
 #'     initiated when \code{method = "exchange"} or \code{method =
 #'     "local-maximum"}.  In the end, the best objective found across
 #'     the repetitions is returned. If this argument is not passed,
-#'     only one repetitition is conducted.
+#'     only one repetition is conducted.
+#' @param standardize Boolean. If \code{TRUE} and \code{x} is a feature 
+#'     matrix, the data is standardized through a call to \code{\link{scale}}
+#'     before the optimization starts. This argument is silently ignored 
+#'     if \code{x} is a distance matrix.
+#'     
 #'
 #' @return A vector of length N that assigns a group (i.e, a number
 #'     between 1 and \code{K}) to each input element.
@@ -55,7 +59,7 @@
 #' possible (this usually corresponds to creating groups with high
 #' within-group heterogeneity). This is accomplished by maximizing
 #' instead of minimizing a clustering objective function. The
-#' maximization of three clustering objective functions is natively
+#' maximization of four clustering objective functions is natively
 #' supported (other functions can also defined by the user as
 #' described below):
 #' 
@@ -64,6 +68,8 @@
 #'   \item{k-means `variance` objective, setting \code{objective = "variance"}}
 #'   \item{k-plus objective, an extension of the k-means variance criterion,
 #'         setting \code{objective = "kplus"}}
+#'   \item{`dispersion` objective, the minimum distance between any two 
+#'         elements within the same cluster.}
 #' }
 #'
 #' The k-means objective is the within-group variance---that is, the
@@ -87,6 +93,10 @@
 #' "diversity"} is preferred because there are several clustering
 #' objectives based on pairwise distances (e.g., see
 #' \code{\link{dispersion_objective}}).
+#' 
+#' The "dispersion" is the minimum distance between any two elements within 
+#' the same cluster; applications that require high within-group heterogeneity
+#' often require to maximize the dispersion.
 #'
 #' If the data input \code{x} is a feature matrix (that is: each row
 #' is a "case" and each column is a "variable") and the option
@@ -245,8 +255,9 @@
 #'   objective = "kplus",
 #'   K = c(24, 24, 48),
 #'   categories = schaper2019$room,
-#'   repetitions = 2,
-#'   method = "local-maximum"
+#'   repetitions = 10,
+#'   method = "local-maximum",
+#'   standardize = TRUE
 #' )
 #' 
 #' table(anticlusters, schaper2019$room)
@@ -290,64 +301,58 @@
 
 anticlustering <- function(x, K, objective = "diversity", method = "exchange",
                            preclustering = FALSE, categories = NULL, 
-                           repetitions = NULL) {
+                           repetitions = NULL, standardize = FALSE) {
+
+
+  ## Get data into required format
+  input_validation_anticlustering(x, K, objective, method, preclustering, 
+                                  categories, repetitions, standardize)
 
   x <- to_matrix(x)
-  
-  # extend data for k-means extension objective
+
+  ## Exact method using ILP
+  if (method == "ilp") {
+    return(exact_anticlustering(x, K, preclustering))
+  }
+
+  # Preclustering and categorical constraints are both processed in the
+  # variable `categories` after this step:
+  categories <- get_categorical_constraints(x, K, preclustering, categories)
+
   if (!inherits(objective, "function")) {
-    validate_input(
-      objective, "objective",
-      input_set = c("distance", "diversity", "variance", "kplus"), 
-      len = 1, not_na = TRUE
-    )
     if (objective == "kplus") {
       x <- cbind(x, squared_from_mean(x))
       objective <- "variance"
     }
+    if (objective == "distance") {
+      objective <- "diversity"
+    }
+  }
+  
+  if (!is_distance_matrix(x) && standardize == TRUE) {
+    x <- scale(x)
   }
   
   # In some cases, `anticlustering()` has to be called repeatedly - 
   # redirect to `repeat_anticlustering()` in this case, which then
   # again calls anticlustering with method "exchange" and 
   # repetitions = NULL
-  if (method == "local-maximum" || argument_exists(repetitions)) {
+  if (method == "local-maximum" || 
+    (method == "exchange" && argument_exists(repetitions))) {
     if (!argument_exists(repetitions)) {
       repetitions <- 1
     }
-    return(repeat_anticlustering(x, K, objective, categories, preclustering, 
-                                 method, repetitions))
+    return(repeat_anticlustering(x, K, objective, categories, method, repetitions))
   }
   
-  ## Get data into required format
-  input_validation_anticlustering(x, K, objective, method, preclustering, 
-                                  categories, repetitions)
-
-  ## Exact method using ILP
-  if (method == "ilp") {
-    return(exact_anticlustering(
-      x,
-      K,
-      preclustering)
-    )
-  }
-  
-  # Preclustering and categorical constraints are both processed in the
-  # variable `categories` after this step:
-  categories <- get_categorical_constraints(x, K, preclustering, categories)
-  
-  if (class(objective) == "function") {
+  if (inherits(objective, "function")) {
     # most generic exchange method, deals with any objective function
     return(exchange_method(x, K, objective, categories))
   }
 
   # Redirect to specialized fast exchange methods for diversity and 
   # variance objectives
-  if (objective == "variance") {
-    return(fast_anticlustering(x, K, Inf, categories))
-  } else if (objective == "diversity" || objective == "distance") {
-    return(fast_exchange_dist(x, K, categories))
-  }
+  c_anticlustering(x, K, categories, objective)
 }
 
 # Function that processes input and returns the data set that the
