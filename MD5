@@ -1,4 +1,4 @@
-880d72e58212e7ba147cc8a86a05bae4 *DESCRIPTION
+1b7bb1158276c72fcdf464c0850b8cdc *DESCRIPTION
 ffde2caaac2f8b1f9a5b0198071bd430 *LICENSE
 a8177245fbebcebf43742467e42deb65 *NAMESPACE
 719d4d9e219e7c4bc44766c514131ee4 *R/anticlust.R
@@ -38,7 +38,7 @@ da2f4578ded61cecda5f86d4734598a0 *R/wrapper-matching.R
 b0e8df278410268ca7f1ca956c772f35 *inst/CITATION
 56efbbf713e27b50f415fff467de1b41 *inst/doc/stimulus-selection.R
 f50bb6e5478cef9e96936f15484f77bb *inst/doc/stimulus-selection.Rmd
-faf5c2ea3bb27055a1c6f8df51b9a6b7 *inst/doc/stimulus-selection.html
+8eeb486eebf5a37cd0308fa3803095db *inst/doc/stimulus-selection.html
 31f292e4f563d36541e5c362da54fde1 *inst/render.sh
 81104e0f2fae867e0d19b7f98a46a2b9 *man/anticlust.Rd
 0be78701daac7c7216fe457daf0656d3 *man/anticlustering.Rd
@@ -65,7 +65,7 @@ e6751bc017b168b31f21ed415a92e2d9 *man/plot_similarity.Rd
 0004c3caeeabb6b0d18fc7ae3d92341b *man/variance_objective.Rd
 adede932422ae161bda6bdecba96ac59 *man/wce.Rd
 307a7922a7a4bb9262740d3b43de1e1f *src/anticlust_init.c
-9eb9150561b13f656c83a610377f9977 *src/bicriterion_iterated_local_search_call.c
+1667d74de069dbe5d4090c21fdecbaf0 *src/bicriterion_iterated_local_search_call.c
 619fdba72edf38b7d53283d0732db78a *src/categorical-contraints.c
 ea21c57614c0c001a68e625fe8823c05 *src/declarations.h
 7892e15fb3f9bdb537450e093ca28fe3 *src/dispersion_anticlustering.c

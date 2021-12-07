@@ -1,7 +1,7 @@
 Type: Package
 Package: anticlust
 Title: Subset Partitioning via Anticlustering
-Version: 0.6.0
+Version: 0.6.1
 Authors@R: c(
     person("Martin", "Papenberg", , "martin.papenberg@hhu.de", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-9900-4268")),
@@ -59,6 +59,6 @@ SystemRequirements: The exact (anti)clustering algorithms require that
         the GNU linear programming kit (GLPK library) is installed
         (<http://www.gnu.org/software/glpk/>). Rendering the vignette
         requires pandoc.
-Packaged: 2021-12-01 10:03:14 UTC; martin
+Packaged: 2021-12-06 14:56:57 UTC; martin
 Repository: CRAN
-Date/Publication: 2021-12-01 11:00:02 UTC
+Date/Publication: 2021-12-07 08:40:02 UTC
