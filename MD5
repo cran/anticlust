@@ -1,4 +1,4 @@
-2ea6f227cfbcdf6e41badf0620ce210a *DESCRIPTION
+96b1b0639531b979f7ca78f66dedc1a6 *DESCRIPTION
 be0459e071ac09413c8a9b90bbe4fb9c *LICENSE
 98a0d55243f883f496e0533b5e88c193 *NAMESPACE
 719d4d9e219e7c4bc44766c514131ee4 *R/anticlust.R
@@ -31,14 +31,14 @@ dd07e08eb32d13057fc32a0c0da6e8d4 *R/schaper2019.R
 ae9d96dfbba97e7ec73e083d958b7daf *R/weighted-cluster-editing.R
 1d838dee57420b9b1b12694b2eb0b6e5 *R/wrapper-anticlustering.R
 46c4f85d2806f6a0c8091fb863e00832 *R/wrapper-clustering.R
-bd8b55a624cf02a3d748aeed8390dfa0 *R/wrapper-k-plus-anticlustering.R
+e20fbcdc408a22efa4b6d27e3e424fd4 *R/wrapper-k-plus-anticlustering.R
 da2f4578ded61cecda5f86d4734598a0 *R/wrapper-matching.R
-e6906e25bebb94e9d05a4afdfe8b581c *build/vignette.rds
+89614c3983152440ea750399d1129bfc *build/vignette.rds
 9ba5a431696fd4a95851230af20f4fbd *data/schaper2019.rda
 b0e8df278410268ca7f1ca956c772f35 *inst/CITATION
 56efbbf713e27b50f415fff467de1b41 *inst/doc/stimulus-selection.R
 f50bb6e5478cef9e96936f15484f77bb *inst/doc/stimulus-selection.Rmd
-3688eb1e1369610b977ccf59192c18ef *inst/doc/stimulus-selection.html
+e5fa96214beba8db74bf290cf098c903 *inst/doc/stimulus-selection.html
 31f292e4f563d36541e5c362da54fde1 *inst/render.sh
 81104e0f2fae867e0d19b7f98a46a2b9 *man/anticlust.Rd
 78362679d0950230269f2814f02d0291 *man/anticlustering.Rd
@@ -54,7 +54,7 @@ f3eb90a271c40abc19010b1d6b7739c9 *man/figures/anticlustStickerV1-0.svg
 2030283f6efbae47dcad4eb93e27a587 *man/figures/matching-1.png
 103cb0f363ad01e24cb0834728e6e478 *man/figures/objectives-1.png
 98bf586332f21aac0b2335f48f49c3f4 *man/generate_partitions.Rd
-3c926b39a2efa8d61a677e5df9ab1024 *man/kplus_anticlustering.Rd
+85aedd1507519808dc73a5af1bd9533b *man/kplus_anticlustering.Rd
 8be4d8fd209a7be22a360c3131c60f60 *man/matching.Rd
 4c6244748e29dd677b8ad5d479f91356 *man/mean_sd_tab.Rd
 7f105d285ba9da945d12c36c07c241f7 *man/n_partitions.Rd
