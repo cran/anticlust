@@ -37,10 +37,10 @@ int get_cat_frequencies(int *USE_CATS, int *CAT_frequencies, size_t n) {
  * serve as exchange partners).
  * 
  */
-int get_indices_by_category(size_t n, size_t c, size_t **CATEGORY_HEADS, 
+int get_indices_by_category(size_t n, size_t c, size_t *CATEGORY_HEADS[c], 
                             int *USE_CATS, 
                             int *categories, int *CAT_frequencies, 
-                            struct element *POINTS) {
+                            struct element POINTS[n]) {
         // Set up array of exchange partners
         if (*USE_CATS) {
                 if (set_up_categories_list(n, c, POINTS, CATEGORY_HEADS, 
@@ -49,7 +49,6 @@ int get_indices_by_category(size_t n, size_t c, size_t **CATEGORY_HEADS,
                 }
                 return 0;
         }
-        // here, we just set up a single array of indices (if categories are not used)
         CATEGORY_HEADS[0] = (size_t*) malloc(n * sizeof(size_t));
         if (CATEGORY_HEADS[0] == NULL) {
                 return 1;
@@ -61,36 +60,22 @@ int get_indices_by_category(size_t n, size_t c, size_t **CATEGORY_HEADS,
 }
 
 /* This function actually does the work of creating the index arrays pointed
- * to by `CATEGORY_HEADS`. Sets up a cluster structure where each category corresponds
+ * to by `C_HEADS`. Sets up a cluster structure where each category corresponds
  * to a cluster. Then, proceeds to read out the indices of all elements by category. 
  */
-int set_up_categories_list(size_t n, size_t c, struct element *POINTS, 
-                     size_t **CATEGORY_HEADS, int *categories, 
+int set_up_categories_list(size_t n, size_t c, struct element POINTS[n], 
+                     size_t *CATEGORY_HEADS[c], int *categories, 
                      int *CAT_frequencies) {
         
-        struct node **HEADS; // used for filling `CATEGORY_HEADS` 
-        HEADS = malloc(c * sizeof(*HEADS));
-        if (HEADS == NULL) {
+        struct node *HEADS[c]; // used for filling `CATEGORY_HEADS` 
+        if (initialize_cluster_heads(c, HEADS) == 1) {
                 return 1; 
         }
-        if (initialize_cluster_heads(c, HEADS) == 1) {
-                free(HEADS);
-                return 1;
-        }
-        
-        /* I really forgot why the following is done, seems wasteful to me... */
         
         // Set up array of pointers-to-nodes, return if memory runs out
-        struct node **PTR_NODES;
-        PTR_NODES = malloc(n * sizeof(*PTR_NODES));
-        if (PTR_NODES == NULL) {
-                free(HEADS);
-                return 1; 
-        }
-        if (fill_cluster_lists(n, categories, POINTS, PTR_NODES, HEADS) == 1) {
-                free_cluster_list(HEADS, c);
-                free(HEADS);
-                free(PTR_NODES);
+        struct node *PTR_NODES[n];
+        if (fill_cluster_lists(n, c, categories, POINTS, PTR_NODES, HEADS) == 1) {
+                free_cluster_list(c, HEADS, c);
                 return 1;
         }
         
@@ -100,10 +85,8 @@ int set_up_categories_list(size_t n, size_t c, struct element *POINTS,
                 size_t n_cats = (size_t) CAT_frequencies[i];
                 CATEGORY_HEADS[i] = (size_t*) malloc(n_cats * sizeof(size_t));
                 if (CATEGORY_HEADS[i] == NULL) {
-                        free_category_indices(CATEGORY_HEADS, i);
-                        free_cluster_list(HEADS, c);
-                        free(HEADS);
-                        free(PTR_NODES);
+                        free_category_indices(c, CATEGORY_HEADS, i);
+                        free_cluster_list(c, HEADS, c);
                         return 1;
                 }
                 // Now write `CATEGORY_HEADS`! Fills all `c` arrays with indices, 
@@ -118,8 +101,6 @@ int set_up_categories_list(size_t n, size_t c, struct element *POINTS,
         }
 
         // free temporary category lists
-        free_cluster_list(HEADS, c);
-        free(PTR_NODES);
-        free(HEADS);
+        free_cluster_list(c, HEADS, c);
         return 0;
 }

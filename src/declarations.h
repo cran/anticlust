@@ -50,12 +50,11 @@ void compute_center(
         struct node *HEAD, 
         int frequency
 );
-
 int fill_data_points(
         double *data, 
         size_t n, 
         size_t m, 
-        struct element *POINTS, 
+        struct element POINTS[n], 
         int *clusters,
         int *USE_CATS,
         int *categories
@@ -66,9 +65,10 @@ double cluster_var(
         double center[m]
 );
 void swap(
+        size_t n, 
         size_t i, 
         size_t j, 
-        struct node **PTR_NODES
+        struct node *PTR_NODES[n]
 );
 void update_centers(
         size_t k, 
@@ -84,7 +84,7 @@ void update_objective_by_cluster(
         double centers[k][m], 
         size_t cl1, 
         size_t cl2, 
-        struct node **HEADS, 
+        struct node *HEADS[k], 
         double OBJ_BY_CLUSTER[k]
 );
 void copy_array(
@@ -100,25 +100,24 @@ void copy_matrix(
 );
 int initialize_cluster_heads(
         size_t k, 
-        struct node **HEADS
+        struct node *HEADS[k]
 );
 
 int fill_cluster_lists(
         size_t n, 
+        size_t k,
         int *clusters,
-        struct element *POINTS,
-        struct node **PTR_NODES, 
-        struct node **PTR_CLUSTER_HEADS
+        struct element POINTS[n],
+        struct node *PTR_NODES[n], 
+        struct node *PTR_CLUSTER_HEADS[k]
 );
-
 void objective_by_cluster(
         size_t m, 
         size_t k, 
         double OBJ_BY_CLUSTER[k], 
         double CENTERS[k][m], 
-        struct node **HEADS
+        struct node *HEADS[k]
 );
-
 double array_sum(
         size_t k, 
         double ARRAY[k]
@@ -127,34 +126,37 @@ double array_sum(
 int get_indices_by_category(
         size_t n, 
         size_t c, 
-        size_t **CATEGORY_HEADS, 
+        size_t *CATEGORY_HEADS[c], 
         int *USE_CATS, 
         int *categories, 
         int *CAT_frequencies, 
-        struct element *POINTS
+        struct element POINTS[n]
 );
 int set_up_categories_list(
         size_t n, 
         size_t c, 
-        struct element *POINTS, 
-        size_t **CATEGORY_HEADS, 
+        struct element POINTS[n], 
+        size_t *CATEGORY_HEADS[c], 
         int *categories, 
         int *CAT_frequencies
 );
 
 /* Free functions */
 void free_points(
-        struct element *POINTS,
+        size_t n, 
+        struct element POINTS[n],
         size_t i
 );
 
 void free_cluster_list(
-        struct node **PTR_CLUSTER_HEADS,
+        size_t k, 
+        struct node *PTR_CLUSTER_HEADS[k],
         size_t i
 );
 
 void free_category_indices(
-        size_t **CATEGORY_HEADS,
+        size_t c, 
+        size_t *CATEGORY_HEADS[c], 
         size_t i
 );
 
@@ -234,6 +236,5 @@ void fast_update_centers(size_t i, size_t j, size_t n, size_t m, size_t k, doubl
 void init_centers(size_t k, size_t m, size_t n, double CENTERS[k][m], int* clusters, int* frequencies, double* data);
 void init_overall_centroid(size_t m, size_t n, double OVERALL_CENTROID[m], double* data);
 void fast_swap(int *clusters, size_t i, size_t j);
-void print_matrix(size_t N, size_t M, double matrix[N][M]);
 size_t one_dim_index(size_t i, size_t j, size_t n);
 double weighted_array_sum(size_t k, int* frequencies, double ARRAY[k]);

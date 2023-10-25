@@ -5,7 +5,7 @@
 
 /* Exchange Method for Anticlustering
  * param *data: vector of data points (in R, this is a data frame,
- *         here, it is a vector)
+ *         the matrix structure must be restored in C)
  * param *N: The number of elements (i.e., number of "rows" in *data)
  * param *M: The number of features (i.e., number of "cols" in *data)
  * param *K: The number of clusters
@@ -33,29 +33,29 @@
  * 
  * Throughout this method, some data structures are defined that are used
  * throughout. The function works by first initializing the required data 
- * structures on which an exchange optimization algorithm is conducted.
+ * structures on which an exchange optimization algorithm is concuted.
  * 
  * These are the data structures that are "global" throughout the function:
  * 
- * 1. `struct element *POINTS` - A pointer array of the `n` data points in the 
+ * 1. `struct element POINTS[n]` - An array copy of the `n` data points in the 
  *    same order as the input. Stores the `m` values per data point and the 
  *    cluster assignment of the data point (initially passed via `*clusters`)
- * 2. `struct node **CLUSTER_HEADS` - A pointer array of length `k` where each
+ * 2. `struct node *CLUSTER_HEADS[k]` - An array of length `k` where each
  *    entry points to the head of a list that represents a cluster. Each cluster
  *    is implemented as a linked list where each node points to an `element` in 
- *    `struct element *POINTS`. Thus, there are `k` cluster lists that are 
+ *    `struct element POINTS[n]`. Thus, there are `k` cluster lists that are 
  *    used during the algorithm to compute the variance by cluster. During
  *    the exchange method, elements are swapped between cluster lists 
  *    (implemented through the function `swap()`). 
  *    The function `initialize_cluster_heads()` sets up the pointer array; the 
  *    function `fill_cluster_lists()` fills the data points as nodes into the 
  *    lists.
- * 3. `struct node **PTR_NODES` - Array of pointers to nodes, used for 
+ * 3. `struct node *PTR_NODES[n]` - Array of pointers to nodes, used for 
  *    iterating during the exchange method. Points to elements in the cluster 
  *    lists but can be used to iterate through the data in the original order
  *    of the data (across cluster lists, this order is lost).
- * 4. `size_t **CATEGORY_HEADS` - Pointer array of length C, array of pointers to indices. 
- *    The i'th element of `CATEGORY_HEADS` contains an array of all 
+ * 4. `size_t *CATEGORY_HEADS[c]` - Array of pointers to indices. 
+ *    The i'th element of `C_HEADS` contains an array of all 
  *    indices of the elements that have the i'th category.
  * 5. `double CENTERS[k][m]` - A matrix of cluster centers.
  * 6. `double OBJECTIVE_BY_CLUSTER[k]` - The variance objective by cluster.
@@ -90,7 +90,7 @@ void kmeans_anticlustering(double *data, int *N, int *M, int *K, int *frequencie
         *   + free in low-level function when possible (i.e., when an allocation error 
         *     occurs within this function)
         *   + Free in high-level function when previously, memory was allocated successfully,
-        *     but then an allocation error occurred
+        *     but then an allocation error occured
         *   + TODO use a safe-free function instead of just `free()`
         */ 
     
@@ -105,55 +105,31 @@ void kmeans_anticlustering(double *data, int *N, int *M, int *K, int *frequencie
         int mem_error_cluster_lists = 0;
         
         // Set up array of data points, fill it, return if memory runs out
-        struct element *POINTS;
-        POINTS = malloc(n * sizeof(*POINTS)); // free() is included below
-        if (POINTS == NULL) { 
-                *mem_error = 1;
-                return; 
-        };
-
-        /* The following is quite irritating, because the return value just 
-         encodes if a memory error occurs; the actual work is done as side effects
-         in fill_data_points() 
-          (this is also true for some of the following function calls) */
-        mem_error_points = fill_data_points( 
+        struct element POINTS[n];
+        mem_error_points = fill_data_points(
                 data, n, m, POINTS, clusters, 
                 USE_CATS, categories
         );
-
-        if (mem_error_points == 1) { // test if all memory was allocated successfully
-                free(POINTS);
+        
+        if (mem_error_points == 1) {
                 *mem_error = 1;
                 return;
         }
-        
         
         /* CATEGORICAL RESTRICTIONS 
          * Write the pointer of arrays `CATEGORY_HEADS`
         */
         
         size_t c = number_of_categories(USE_CATS, C);
-        
         *CAT_frequencies = get_cat_frequencies(USE_CATS, CAT_frequencies, n);
-        
-        size_t **CATEGORY_HEADS;
-        CATEGORY_HEADS = malloc(c * sizeof(*CATEGORY_HEADS));
-        if (CATEGORY_HEADS == NULL) { 
-                free_points(POINTS, n);
-                free(POINTS);
-                *mem_error = 1;
-                return; 
-        };
-        
+        size_t *CATEGORY_HEADS[c];
         
         mem_error_categories = get_indices_by_category(
                 n, c, CATEGORY_HEADS, USE_CATS, categories, CAT_frequencies, POINTS
         );
         
         if (mem_error_categories == 1) {
-                free_points(POINTS, n);
-                free(POINTS);
-                free(CATEGORY_HEADS);
+                free_points(n, POINTS, n);
                 *mem_error = 1;
                 return; 
         }
@@ -161,57 +137,27 @@ void kmeans_anticlustering(double *data, int *N, int *M, int *K, int *frequencie
         /* SET UP CLUSTER STRUCTURE */
         
         // Set up array of pointer-to-cluster-heads
-        struct node **CLUSTER_HEADS;
-        CLUSTER_HEADS = malloc(k * sizeof(*CLUSTER_HEADS)); // k * pointer to cluster lists
-        if (CLUSTER_HEADS == NULL) {
-                free_category_indices(CATEGORY_HEADS, c);
-                free(CATEGORY_HEADS);
-                free_points(POINTS, n);
-                free(POINTS);
-                *mem_error = 1;
-                return; 
-        }
-        
-        
-        
+        struct node *CLUSTER_HEADS[k];
         mem_error_cluster_heads = initialize_cluster_heads(k, CLUSTER_HEADS);
         
         if (mem_error_cluster_heads == 1) {
-                free(CLUSTER_HEADS);
-                free_category_indices(CATEGORY_HEADS, c);
-                free(CATEGORY_HEADS);
-                free_points(POINTS, n);
-                free(POINTS);
+                free_points(n, POINTS, n);
+                free_category_indices(c, CATEGORY_HEADS, c);
                 *mem_error = 1;
                 return; 
         }
 
         // Set up array of pointers-to-nodes, return if memory runs out
-        struct node **PTR_NODES; // use pointer to pointer as well
-        PTR_NODES = malloc(n * sizeof(*PTR_NODES));
-        if (PTR_NODES == NULL) {
-                free(CLUSTER_HEADS);
-                free_category_indices(CATEGORY_HEADS, c);
-                free(CATEGORY_HEADS);
-                free_points(POINTS, n);
-                free(POINTS);
-                *mem_error = 1;
-                return; 
-        }
-
+        struct node *PTR_NODES[n];
         mem_error_cluster_lists = fill_cluster_lists(
-            n, clusters,
+            n, k, clusters, 
             POINTS, PTR_NODES, CLUSTER_HEADS
         );
         
         if (mem_error_cluster_lists == 1) {
-                free_cluster_list(CLUSTER_HEADS, k);
-                free(CLUSTER_HEADS);
-                free_category_indices(CATEGORY_HEADS, c);
-                free(CATEGORY_HEADS);
-                free(PTR_NODES);
-                free_points(POINTS, n);
-                free(POINTS);
+                free_points(n, POINTS, n);
+                free_category_indices(c, CATEGORY_HEADS, c);
+                free_cluster_list(k, CLUSTER_HEADS, k);
                 *mem_error = 1;
                 return;
         }
@@ -270,7 +216,7 @@ void kmeans_anticlustering(double *data, int *N, int *M, int *K, int *frequencie
                                 PTR_NODES[j],
                                 frequencies
                         );
-                        swap(i, j, PTR_NODES);
+                        swap(n, i, j, PTR_NODES);
                         // Update objective
                         tmp_objs[cl1] = cluster_var(m, CLUSTER_HEADS[cl1],
                                                     tmp_centers[cl1]);
@@ -287,12 +233,12 @@ void kmeans_anticlustering(double *data, int *N, int *M, int *K, int *frequencie
                         }
                         
                         // Swap back to test next exchange partner
-                        swap(i, j, PTR_NODES);
+                        swap(n, i, j, PTR_NODES);
                 }
                 
                 // Only if objective is improved: Do the swap
                 if (best_obj > SUM_OBJECTIVE) {
-                        swap(i, best_partner, PTR_NODES);
+                        swap(n, i, best_partner, PTR_NODES);
                         // Update the "global" variables
                         SUM_OBJECTIVE = best_obj;
                         copy_matrix(k, m, best_centers, CENTERS);
@@ -306,13 +252,9 @@ void kmeans_anticlustering(double *data, int *N, int *M, int *K, int *frequencie
         }
         
         // in the end, free allocated memory:
-        free_points(POINTS, n);
-        free_category_indices(CATEGORY_HEADS, c);
-        free_cluster_list(CLUSTER_HEADS, k);
-        free(CLUSTER_HEADS);
-        free(PTR_NODES);
-        free(CATEGORY_HEADS);
-        free(POINTS);
+        free_points(n, POINTS, n);
+        free_category_indices(c, CATEGORY_HEADS, c);
+        free_cluster_list(k, CLUSTER_HEADS, k);
 }
 
 /* 
@@ -325,7 +267,7 @@ void kmeans_anticlustering(double *data, int *N, int *M, int *K, int *frequencie
  * 
  */
 
-void swap(size_t i, size_t j, struct node **PTR_NODES) {
+void swap(size_t n, size_t i, size_t j, struct node *PTR_NODES[n]) {
         
         struct node *one = PTR_NODES[i];
         struct node *two = PTR_NODES[j];

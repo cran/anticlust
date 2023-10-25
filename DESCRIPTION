@@ -1,7 +1,7 @@
 Type: Package
 Package: anticlust
 Title: Subset Partitioning via Anticlustering
-Version: 0.8.0
+Version: 0.8.0-1
 Authors@R: c(
     person("Martin", "Papenberg", , "martin.papenberg@hhu.de", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-9900-4268")),
@@ -74,6 +74,6 @@ SystemRequirements: The exact (anti)clustering algorithms require that
         open source MILP solver
         (<https://github.com/coin-or/SYMPHONY>). Rendering the vignette
         requires pandoc (<https://pandoc.org/>).
-Packaged: 2023-09-13 13:15:35 UTC; martin
+Packaged: 2023-10-25 11:57:05 UTC; martin
 Repository: CRAN
-Date/Publication: 2023-09-13 23:00:07 UTC
+Date/Publication: 2023-10-25 13:30:02 UTC
