@@ -10,7 +10,6 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<meta name="author" content="Martin Papenberg" />
 
 
 <title>Some best practices for anticlustering</title>
@@ -56,6 +55,107 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
 
 
 
@@ -253,11 +353,11 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 <h1 class="title toc-ignore">Some best practices for anticlustering</h1>
-<h4 class="author">Martin Papenberg</h4>
 
 
 
-<p>This vignette documents some “best practices” for anticlustering using the R package <code>anticlust</code>. In many cases, the suggestions pertain to overriding the default values of arguments of <code>anticlustering()</code>, which seems to be a difficult decision for users. However, I advise you: Do not stick with the defaults; check out the results of different anticlustering specifications; repeat the process; play around; read the documentation (especially <code>?anticlustering</code>); change arguments arbitrarily; compare the output. Nothing can break.<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">library</span>(anticlust)</span></code></pre></div>
+<p>This vignette documents some “best practices” for using the function <code>anticlustering()</code> (and they are mostly applicable to <code>kplus_anticlustering()</code> as well). In many cases, the suggestions pertain to overriding the default values of arguments, which seems to be a difficult decision for users. However, I advise you: Do not stick with the defaults; check out the results of different anticlustering specifications; repeat the process; play around; read the documentation (especially <code>?anticlustering</code>); change arguments arbitrarily; compare the output. Nothing can break.<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a></p>
 <p>This document uses somewhat imperative language; nuance and explanations are given in the package documentation, the other vignettes, and the papers by Papenberg and Klau (2021; <a href="https://doi.org/10.1037/met0000301" class="uri">https://doi.org/10.1037/met0000301</a>) and Papenberg (2023; <a href="https://doi.org/10.1111/bmsp.12315" class="uri">https://doi.org/10.1111/bmsp.12315</a>). Note that deciding which anticlustering objective to use usually requires substantial content considerations and cannot be reduced to “which one is better”. However, some hints are given below.</p>
 <ul>
 <li>If speed is not an issue (it usually is not), use <code>method = &quot;local-maximum&quot;</code> instead of the default <code>method = &quot;exchange&quot;</code>. <strong>It is unambiguously better.</strong></li>
@@ -265,13 +365,13 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <li>Use <code>standardize = TRUE</code> instead of the default <code>standardize = FALSE</code>.<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a></li>
 <li>Do not use the default <code>objective = &quot;diversity&quot;</code> when the group sizes are not equal (preferably, use <code>objective = &quot;kplus&quot;</code>).</li>
 <li>If you only care about similarity in mean values, use <code>objective = &quot;variance&quot;</code>.</li>
-<li><strong>You should (probably) not only care about similarity in mean values</strong>: prefer <code>objective = &quot;kplus&quot;</code> over <code>objective = &quot;variance&quot;</code> (or check out the function <code>kplus_anticlustering()</code>).</li>
+<li><strong>You should (probably) not only care about similarity in mean values</strong>: prefer <code>objective = &quot;kplus&quot;</code> over <code>objective = &quot;variance&quot;</code> (or even better: check out the function <code>kplus_anticlustering()</code>).</li>
 <li>If you (only) care about similarity in means and standard deviations, use <code>objective = &quot;kplus&quot;</code> instead of the default <code>objective = &quot;diversity&quot;</code>.</li>
 <li>With k-plus anticlustering, <strong>always</strong> use <code>standardize = TRUE</code>.</li>
-<li>If you want to apply anticlustering on a large data set, read the vignette “Speeding up Anticlustering”.</li>
-<li>If you have a very large<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a> data set, do not use the default <code>objective = &quot;diversity&quot;</code> because computing the distance matrix may overwhelm your computer. Instead use <code>objective = &quot;variance&quot;</code> or <code>objective = &quot;kplus&quot;</code>.</li>
+<li>Do not use the function <code>fast_anticlustering()</code> (which is usually slower than <code>anticlustering()</code>).</li>
 <li>For the optimal anticlustering algorithms (i.e., <code>method = &quot;ilp&quot;</code>): Install the SYMPHONY solver instead of the GLPK solver.</li>
-<li>The <code>objective = &quot;dispersion&quot;</code> is the only objective where you should first try out the optimal method instead of a heuristic, i.e., use <code>method = &quot;ilp&quot;</code> or the function <code>optimal_dispersion()</code>.<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a></li>
+<li>The <code>objective = &quot;dispersion&quot;</code> is the only objective where you should first try out the optimal method instead of a heuristic, i.e., use <code>method = &quot;ilp&quot;</code> or the function <code>optimal_dispersion()</code>.<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a></li>
+<li>If you have a very large<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a> data set, do not use the default <code>objective = &quot;diversity&quot;</code> because computing the distance matrix may overwhelm your computer. Instead use <code>objective = &quot;variance&quot;</code> or <code>objective = &quot;kplus&quot;</code>.</li>
 </ul>
 <div id="references" class="section level2">
 <h2>References</h2>
@@ -282,9 +382,9 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <hr />
 <ol>
 <li id="fn1"><p>Well, actually your R session can break if you use an optimal method (<code>method = &quot;ilp&quot;</code>) with a data set that is too large.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
-<li id="fn2"><p>You might ask why <code>standardize = TRUE</code> is not the default. Actually, there are two reasons. First, the argument was not always available in <code>anticlust</code> and changing the default behaviour of a function when releasing a new version is oftentimes undesirable. Second, it seems like a big decision to me to just change users’ data by default (which is done when standardizing the data). In doubt, just compare the results of using <code>standardize = TRUE</code> and <code>standardize = FALSE</code> and decide for yourself which you like best. Standardization may not be the best choice in all settings.<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
-<li id="fn3"><p>What is considered very large may depend on the specifications of your computer. I used to have problems computing a distance matrix for <span class="math inline">\(N &gt; 20000\)</span>.<a href="#fnref3" class="footnote-back">↩︎</a></p></li>
-<li id="fn4"><p>The maximum dispersion problem can be solved optimally for rather large data sets, especially for <span class="math inline">\(K = 2\)</span>. For <span class="math inline">\(K = 3\)</span> and <span class="math inline">\(K = 4\)</span>, several 100 elements can usually be processed, especially when installing the SYMPHONY solver.<a href="#fnref4" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p>You might ask why <code>standardize = TRUE</code> is not the default. Actually, there are two reasons. First, the argument was not always available in <code>anticlust</code> and changing the default behaviour of a function when releasing a new version is oftentimes undesirable. Second, it seems like a big decision to me to just change users’ data by default. In doubt, just compare the results of using <code>standardize = TRUE</code> and <code>standardize = FALSE</code> and decide for yourself which you like best. Standardization may not be the best choice in all settings.<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn3"><p>The maximum dispersion problem can be solved optimally for rather large data sets, especially for <span class="math inline">\(K = 2\)</span>. For <span class="math inline">\(K = 3\)</span> and <span class="math inline">\(K = 4\)</span>, several 100 elements can usually be processed, especially when installing the SYMPHONY solver.<a href="#fnref3" class="footnote-back">↩︎</a></p></li>
+<li id="fn4"><p>What is considered very large may depend on the specifications of your computer. I used to have problems computing a distance matrix for <span class="math inline">\(N &gt; 20000\)</span>.<a href="#fnref4" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
 

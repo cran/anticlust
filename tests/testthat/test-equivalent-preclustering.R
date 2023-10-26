@@ -40,13 +40,12 @@ test_that("different options for preclustering have the same result - variance o
       set.seed(seed)
       ac3 <- fast_anticlustering(
         features,
-        K = categorical_sampling(preclusters, K),
-        exchange_partners = nearest_neighbours(features, N-1, preclusters)
+        K = K,
+        categories = preclusters
       )
 
-      expect_true(all(ac1 == ac2))
-      expect_true(all(ac3 == ac3))
-      
+      expect_equal(all(ac1 == ac2), TRUE)
+      expect_equal(all(ac2 == ac3), TRUE)
     }
   }
 })

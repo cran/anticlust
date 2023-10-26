@@ -50,8 +50,6 @@
 #'
 #' @importFrom Matrix sparseMatrix
 #' @importFrom stats as.dist dist sd
-#' 
-#' @useDynLib anticlust, .registration = TRUE
 #'
 #' @export
 #'

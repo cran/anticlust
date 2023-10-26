@@ -1,7 +1,6 @@
 ---
 title: "Using categorical variables with anticlustering"
 output: rmarkdown::html_vignette
-author: Martin Papenberg
 vignette: >
   %\VignetteIndexEntry{Using categorical variables with anticlustering}
   %\VignetteEngine{knitr::rmarkdown}
