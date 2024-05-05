@@ -15,6 +15,35 @@
 
 <title>Some best practices for anticlustering</title>
 
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
+// v0.0.1
+// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
+
+document.addEventListener('DOMContentLoaded', function() {
+  const codeList = document.getElementsByClassName("sourceCode");
+  for (var i = 0; i < codeList.length; i++) {
+    var linkList = codeList[i].getElementsByTagName('a');
+    for (var j = 0; j < linkList.length; j++) {
+      if (linkList[j].innerHTML === "") {
+        linkList[j].setAttribute('aria-hidden', 'true');
+      }
+    }
+  }
+});
+</script>
 
 <style type="text/css">
   code{white-space: pre-wrap;}
@@ -252,10 +281,10 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <div class="footnotes">
 <hr />
 <ol>
-<li id="fn1"><p>Well, actually your R session can break if you use an optimal method (<code>method = &quot;ilp&quot;</code>) with a data set that is too large.<a href="#fnref1" class="footnote-back">↩</a></p></li>
-<li id="fn2"><p>You might ask why <code>standardize = TRUE</code> is not the default. Actually, there are two reasons. First, the argument was not always available in <code>anticlust</code> and changing the default behaviour of a function when releasing a new version is oftentimes undesirable. Second, it seems like a big decision to me to just change users’ data by default (which is done when standardizing the data). In doubt, just compare the results of using <code>standardize = TRUE</code> and <code>standardize = FALSE</code> and decide for yourself which you like best. Standardization may not be the best choice in all settings.<a href="#fnref2" class="footnote-back">↩</a></p></li>
-<li id="fn3"><p>What is considered very large may depend on the specifications of your computer. I used to have problems computing a distance matrix for <span class="math inline">\(N &gt; 20000\)</span>.<a href="#fnref3" class="footnote-back">↩</a></p></li>
-<li id="fn4"><p>The maximum dispersion problem can be solved optimally for rather large data sets, especially for <span class="math inline">\(K = 2\)</span>. For <span class="math inline">\(K = 3\)</span> and <span class="math inline">\(K = 4\)</span>, several 100 elements can usually be processed, especially when installing the SYMPHONY solver.<a href="#fnref4" class="footnote-back">↩</a></p></li>
+<li id="fn1"><p>Well, actually your R session can break if you use an optimal method (<code>method = &quot;ilp&quot;</code>) with a data set that is too large.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p>You might ask why <code>standardize = TRUE</code> is not the default. Actually, there are two reasons. First, the argument was not always available in <code>anticlust</code> and changing the default behaviour of a function when releasing a new version is oftentimes undesirable. Second, it seems like a big decision to me to just change users’ data by default (which is done when standardizing the data). In doubt, just compare the results of using <code>standardize = TRUE</code> and <code>standardize = FALSE</code> and decide for yourself which you like best. Standardization may not be the best choice in all settings.<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn3"><p>What is considered very large may depend on the specifications of your computer. I used to have problems computing a distance matrix for <span class="math inline">\(N &gt; 20000\)</span>.<a href="#fnref3" class="footnote-back">↩︎</a></p></li>
+<li id="fn4"><p>The maximum dispersion problem can be solved optimally for rather large data sets, especially for <span class="math inline">\(K = 2\)</span>. For <span class="math inline">\(K = 3\)</span> and <span class="math inline">\(K = 4\)</span>, several 100 elements can usually be processed, especially when installing the SYMPHONY solver.<a href="#fnref4" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
 

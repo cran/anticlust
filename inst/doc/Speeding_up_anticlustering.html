@@ -15,6 +15,35 @@
 
 <title>Speeding up anticlustering</title>
 
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
+// v0.0.1
+// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
+
+document.addEventListener('DOMContentLoaded', function() {
+  const codeList = document.getElementsByClassName("sourceCode");
+  for (var i = 0; i < codeList.length; i++) {
+    var linkList = codeList[i].getElementsByTagName('a');
+    for (var j = 0; j < linkList.length; j++) {
+      if (linkList[j].innerHTML === "") {
+        linkList[j].setAttribute('aria-hidden', 'true');
+      }
+    }
+  }
+});
+</script>
 
 <style type="text/css">
   code{white-space: pre-wrap;}
@@ -36,26 +65,27 @@
   }
 </style>
 <style type="text/css" data-origin="pandoc">
-a.sourceLine { display: inline-block; line-height: 1.25; }
-a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
 div.sourceCode { margin: 1em 0; }
 pre.sourceCode { margin: 0; }
 @media screen {
 div.sourceCode { overflow: auto; }
 }
 @media print {
-code.sourceCode { white-space: pre-wrap; }
-a.sourceLine { text-indent: -1em; padding-left: 1em; }
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
-pre.numberSource a.sourceLine
-  { position: relative; left: -4em; }
-pre.numberSource a.sourceLine::before
-  { content: attr(title);
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
     position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; pointer-events: all; display: inline-block;
+    border: none; display: inline-block;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -64,9 +94,9 @@ pre.numberSource a.sourceLine::before
   }
 pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
 div.sourceCode
-  {  }
+  {   }
 @media screen {
-a.sourceLine::before { text-decoration: underline; }
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
@@ -328,7 +358,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">library</span>(anticlust)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">library</span>(anticlust)</span></code></pre></div>
 <p>This vignette documents various ways by which the speed of the anticlustering method implemented in the <code>anticlust</code> package can be adjusted. Speedup is particularly useful for large data sets when the default anticlustering algorithm becomes too slow. A fast method may also be desirable for testing purposes, even if the final anticlustering is based on a slower method.</p>
 <div id="the-exchange-algorithm" class="section level2">
 <h2>The exchange algorithm</h2>
@@ -339,27 +369,27 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <p>The default exchange algorithm (<code>anticlustering(..., method = &quot;exchange&quot;)</code>) iterates through all input elements and attempts to improve the anticlustering by swapping each input element with a element that is currently assigned to a different cluster. No swap is conducted if an element cannot be swapped in such a way that the anticlustering objective is improved. The process stops after all possible exchanges have been evaluated for each element. When the number of input elements is <span class="math inline">\(N\)</span>, this process leads to approximately <span class="math inline">\(N^2\)</span>—or <span class="math inline">\(O(N^2)\)</span>—attempted exchanges, because each element is swapped with all elements that are currently assigned to a different cluster. To give a concrete example, when having <span class="math inline">\(N = 100\)</span> data points and <span class="math inline">\(K = 4\)</span> equal-sized groups, 75 swaps are evaluated for each element and the best swap is realized. This leads to 100 * 75 = 7500 exchanges that have to be conducted during the entire exchange algorithm, and for each exchange the objective function has to be re-evaluated. This is less exchanges than <span class="math inline">\(N^2 = 100^2 = 10000\)</span> because we skip exchanges with the 25 elements that are currently in the same cluster (including itself). However, according to the <a href="https://en.wikipedia.org/wiki/Big_O_notation">Big O notation</a>, we would still classify the number of exchanges as <span class="math inline">\(O(N^2)\)</span>, independent of the number of groups. Thus, the total theoretical run time of the exchange method is <span class="math inline">\(O(N^2)\)</span> multiplied with the effort needed to compute an anticlustering objective.</p>
 <p>The results of the exchange method can be improved by not stopping after a single iteration through the data set; instead we may repeat the process until no single exchange is able to further improve the anticlustering objective, i.e., until a local maximum is found. This happens if we use <code>anticlustering(..., method = &quot;local-maximum&quot;)</code>. This method corresponds to the algorithm “LCW” in Weitz and Lakshminarayanan (1998). Using the local maximum method leads to more exchanges and thus to longer running time, but also better results than the default exchange method.</p>
 <p>Let’s compare the two exchange methods with regard to their running time, using the iris data set, which contains 150 elements.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1"></a>
-<a class="sourceLine" id="cb2-2" title="2">K &lt;-<span class="st"> </span><span class="dv">3</span></a>
-<a class="sourceLine" id="cb2-3" title="3"><span class="kw">system.time</span>(<span class="kw">anticlustering</span>(iris[, <span class="dv">-5</span>], <span class="dt">K =</span> K, <span class="dt">method =</span> <span class="st">&quot;exchange&quot;</span>))</a>
-<a class="sourceLine" id="cb2-4" title="4"><span class="co">#&gt;        User      System verstrichen </span></a>
-<a class="sourceLine" id="cb2-5" title="5"><span class="co">#&gt;       0.008       0.000       0.008</span></a>
-<a class="sourceLine" id="cb2-6" title="6"><span class="kw">system.time</span>(<span class="kw">anticlustering</span>(iris[, <span class="dv">-5</span>], <span class="dt">K =</span> K, <span class="dt">method =</span> <span class="st">&quot;local-maximum&quot;</span>))</a>
-<a class="sourceLine" id="cb2-7" title="7"><span class="co">#&gt;        User      System verstrichen </span></a>
-<a class="sourceLine" id="cb2-8" title="8"><span class="co">#&gt;       0.045       0.000       0.045</span></a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>K &lt;-<span class="st"> </span><span class="dv">3</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a><span class="kw">system.time</span>(<span class="kw">anticlustering</span>(iris[, <span class="dv">-5</span>], <span class="dt">K =</span> K, <span class="dt">method =</span> <span class="st">&quot;exchange&quot;</span>))</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a><span class="co">#&gt;        User      System verstrichen </span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a><span class="co">#&gt;       0.008       0.000       0.007</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a><span class="kw">system.time</span>(<span class="kw">anticlustering</span>(iris[, <span class="dv">-5</span>], <span class="dt">K =</span> K, <span class="dt">method =</span> <span class="st">&quot;local-maximum&quot;</span>))</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a><span class="co">#&gt;        User      System verstrichen </span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true"></a><span class="co">#&gt;       0.037       0.000       0.037</span></span></code></pre></div>
 <p>Depending on how many iterations are needed, the default exchange method can be much faster than the local maximum method. Generally I would recommend to use <code>method = &quot;local-maximum&quot;</code> for better results, but if speed is an issue, stick with the default.</p>
 <p>To slow down even more: The exchange process may be restarted several times, each time using a different initial grouping of the elements. This is accomplished when specifying the <code>repetitions</code> argument, which defaults to 1 repetition of the exchange / local maximum algorithm. Thus, for better results, we may increase the number of repetitions:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"></a>
-<a class="sourceLine" id="cb3-2" title="2">K &lt;-<span class="st"> </span><span class="dv">3</span></a>
-<a class="sourceLine" id="cb3-3" title="3"><span class="kw">system.time</span>(<span class="kw">anticlustering</span>(iris[, <span class="dv">-5</span>], <span class="dt">K =</span> K, <span class="dt">method =</span> <span class="st">&quot;exchange&quot;</span>))</a>
-<a class="sourceLine" id="cb3-4" title="4"><span class="co">#&gt;        User      System verstrichen </span></a>
-<a class="sourceLine" id="cb3-5" title="5"><span class="co">#&gt;       0.007       0.000       0.007</span></a>
-<a class="sourceLine" id="cb3-6" title="6"><span class="kw">system.time</span>(<span class="kw">anticlustering</span>(iris[, <span class="dv">-5</span>], <span class="dt">K =</span> K, <span class="dt">method =</span> <span class="st">&quot;local-maximum&quot;</span>))</a>
-<a class="sourceLine" id="cb3-7" title="7"><span class="co">#&gt;        User      System verstrichen </span></a>
-<a class="sourceLine" id="cb3-8" title="8"><span class="co">#&gt;       0.038       0.000       0.038</span></a>
-<a class="sourceLine" id="cb3-9" title="9"><span class="kw">system.time</span>(<span class="kw">anticlustering</span>(iris[, <span class="dv">-5</span>], <span class="dt">K =</span> K, <span class="dt">method =</span> <span class="st">&quot;local-maximum&quot;</span>, <span class="dt">repetitions =</span> <span class="dv">10</span>))</a>
-<a class="sourceLine" id="cb3-10" title="10"><span class="co">#&gt;        User      System verstrichen </span></a>
-<a class="sourceLine" id="cb3-11" title="11"><span class="co">#&gt;       0.420       0.000       0.421</span></a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>K &lt;-<span class="st"> </span><span class="dv">3</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a><span class="kw">system.time</span>(<span class="kw">anticlustering</span>(iris[, <span class="dv">-5</span>], <span class="dt">K =</span> K, <span class="dt">method =</span> <span class="st">&quot;exchange&quot;</span>))</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a><span class="co">#&gt;        User      System verstrichen </span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a><span class="co">#&gt;       0.007       0.000       0.007</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true"></a><span class="kw">system.time</span>(<span class="kw">anticlustering</span>(iris[, <span class="dv">-5</span>], <span class="dt">K =</span> K, <span class="dt">method =</span> <span class="st">&quot;local-maximum&quot;</span>))</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true"></a><span class="co">#&gt;        User      System verstrichen </span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true"></a><span class="co">#&gt;        0.03        0.00        0.03</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true"></a><span class="kw">system.time</span>(<span class="kw">anticlustering</span>(iris[, <span class="dv">-5</span>], <span class="dt">K =</span> K, <span class="dt">method =</span> <span class="st">&quot;local-maximum&quot;</span>, <span class="dt">repetitions =</span> <span class="dv">10</span>))</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true"></a><span class="co">#&gt;        User      System verstrichen </span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true"></a><span class="co">#&gt;       0.322       0.004       0.326</span></span></code></pre></div>
 <p>In this case, sticking with the default leads to run times that are much much faster. Still, if your data set is not too large, using several repetitions may be useful (but you can judge yourself via the results). The good news is that fewer exchanges may be enough in large data sets: anticlustering generally becomes easier with more data.</p>
 </div>
 <div id="getting-fast-using-fewer-exchange-partners" class="section level2">
@@ -368,23 +398,23 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <div id="fast_anticlustering" class="section level3">
 <h3>fast_anticlustering()</h3>
 <p>In Papenberg and Klau (2021), we described the function <code>fast_anticlustering()</code> as a method to speed up the anticlustering process for large data sets. It optimizes the k-means objective because computing all pairwise distances as is done when optimizing the “diversity” (i.e., the default in <code>anticlustering()</code>) is not feasible for very large data sets (for about N &gt; 20000 on my personal computer). Moreover, <code>fast_anticlustering()</code> directly takes as argument the number of exchange partners for each element, via the argument <code>k_neighbours</code>. In this case, the application is straight forward:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1">N &lt;-<span class="st"> </span><span class="dv">5000</span></a>
-<a class="sourceLine" id="cb4-2" title="2">M &lt;-<span class="st"> </span><span class="dv">2</span></a>
-<a class="sourceLine" id="cb4-3" title="3">data &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">rnorm</span>(N <span class="op">*</span><span class="st"> </span>M), <span class="dt">ncol =</span> M)</a>
-<a class="sourceLine" id="cb4-4" title="4">start &lt;-<span class="st"> </span><span class="kw">Sys.time</span>()</a>
-<a class="sourceLine" id="cb4-5" title="5">groups1 &lt;-<span class="st"> </span><span class="kw">fast_anticlustering</span>(data, <span class="dt">K =</span> <span class="dv">2</span>)  <span class="co"># default uses all exchange partners</span></a>
-<a class="sourceLine" id="cb4-6" title="6"><span class="kw">Sys.time</span>() <span class="op">-</span><span class="st"> </span>start </a>
-<a class="sourceLine" id="cb4-7" title="7"><span class="co">#&gt; Time difference of 2.42984 secs</span></a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a>N &lt;-<span class="st"> </span><span class="dv">5000</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a>M &lt;-<span class="st"> </span><span class="dv">2</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>data &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">rnorm</span>(N <span class="op">*</span><span class="st"> </span>M), <span class="dt">ncol =</span> M)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a>start &lt;-<span class="st"> </span><span class="kw">Sys.time</span>()</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a>groups1 &lt;-<span class="st"> </span><span class="kw">fast_anticlustering</span>(data, <span class="dt">K =</span> <span class="dv">2</span>)  <span class="co"># default uses all exchange partners</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a><span class="kw">Sys.time</span>() <span class="op">-</span><span class="st"> </span>start </span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true"></a><span class="co">#&gt; Time difference of 2.265388 secs</span></span></code></pre></div>
 <p>The default behaviour in <code>fast_anticlustering()</code> is to use all exchange partners. Using fewer exchange partners can lead to much faster run time:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1">start &lt;-<span class="st"> </span><span class="kw">Sys.time</span>()</a>
-<a class="sourceLine" id="cb5-2" title="2">groups2 &lt;-<span class="st"> </span><span class="kw">fast_anticlustering</span>(data, <span class="dt">K =</span> <span class="dv">2</span>, <span class="dt">k_neighbours =</span> <span class="dv">20</span>)</a>
-<a class="sourceLine" id="cb5-3" title="3"><span class="kw">Sys.time</span>() <span class="op">-</span><span class="st"> </span>start </a>
-<a class="sourceLine" id="cb5-4" title="4"><span class="co">#&gt; Time difference of 0.326349 secs</span></a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a>start &lt;-<span class="st"> </span><span class="kw">Sys.time</span>()</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a>groups2 &lt;-<span class="st"> </span><span class="kw">fast_anticlustering</span>(data, <span class="dt">K =</span> <span class="dv">2</span>, <span class="dt">k_neighbours =</span> <span class="dv">20</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a><span class="kw">Sys.time</span>() <span class="op">-</span><span class="st"> </span>start </span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a><span class="co">#&gt; Time difference of 0.2195756 secs</span></span></code></pre></div>
 <p>Was there a cost to this speedup?</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">variance_objective</span>(data, groups1)</a>
-<a class="sourceLine" id="cb6-2" title="2"><span class="co">#&gt; [1] 9879.643</span></a>
-<a class="sourceLine" id="cb6-3" title="3"><span class="kw">variance_objective</span>(data, groups2)</a>
-<a class="sourceLine" id="cb6-4" title="4"><span class="co">#&gt; [1] 9879.643</span></a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a><span class="kw">variance_objective</span>(data, groups1)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a><span class="co">#&gt; [1] 9879.643</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a><span class="kw">variance_objective</span>(data, groups2)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true"></a><span class="co">#&gt; [1] 9879.643</span></span></code></pre></div>
 <p>Frankly, there is no observable difference with regard to the objective that was obtained, but the call to <code>fast_anticlustering()</code>, which used fewer exchange partners, was much faster. In general, for large data sets, using fewer exchange partners may not impair the results and instead lead to heavily reduced run times. <em>Sometimes, there is free lunch</em>.</p>
 <p>By default, <code>fast_anticlustering()</code> selects exchange partners though a nearest neighbour search when specifying <code>k_neighbours</code>: similar elements serve as exchange partners. The nearest neighbour search, which is done once in the beginning, only has O(N log(N)) run time and therefore does not strongly contribute to the overall run time. It is possible to suppress the nearest neighbour search by passing custom exchange partners using the <code>exchange_partners</code> argument of <code>fast_anticlustering()</code>. Exchange partners can for example be generated by <code>generate_exchange_partners()</code>, but a custom list may also be used. See the documentation (<code>?fast_anticlustering</code> and <code>?generate_exchange_partners()</code>) for more information.</p>
 </div>
@@ -392,121 +422,121 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <h3>Preclustering</h3>
 <p>A second way of doing using fewer exchange partners is by including “preclustering” restrictions with the standard anticlustering function <code>anticlustering()</code>. Unlike <code>fast_anticlustering()</code>, preclustering works with all anticlustering objectives that are available in <code>anticlustering()</code> (e.g., the diversity). When setting <code>preclustering = TRUE</code>, the optimization restricts the number of exchange partners to <code>K - 1</code> (very similar) elements. While the logic is similar to the nearest neighbour approach in <code>fast_anticlustering()</code>, the difference is that the exchange partners consist of mutually exclusive groups when using preclustering. For example, the first, third and tenth element may only serve as exchange partners for each other, and none of them is exchanged with an “outsider” of this particular group. With <code>fast_anticlustering()</code>, each element has its own separate list of exchange partners, which can even be user generated when using the argument <code>exchange_partners</code>. In graph terms, with preclustering, the exchange partners form a clique, whereas with <code>fast_anticlustering()</code>, any (number of) connections are possible.</p>
 <p>Note that the preclustering algorithm, which has to be performed prior to the anticlustering algorithm, has <span class="math inline">\(O(N^2)\)</span> run time, which is slower than the nearest neighbour search in <code>fast_anticlustering()</code>. It nevertheless leads to strongly improved run times for larger data sets:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1">N &lt;-<span class="st"> </span><span class="dv">1000</span></a>
-<a class="sourceLine" id="cb7-2" title="2">M &lt;-<span class="st"> </span><span class="dv">5</span></a>
-<a class="sourceLine" id="cb7-3" title="3">K &lt;-<span class="st"> </span><span class="dv">3</span></a>
-<a class="sourceLine" id="cb7-4" title="4">data &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">rnorm</span>(N<span class="op">*</span>M), <span class="dt">ncol =</span> M)</a>
-<a class="sourceLine" id="cb7-5" title="5"><span class="kw">system.time</span>(<span class="kw">anticlustering</span>(data, <span class="dt">K =</span> K))</a>
-<a class="sourceLine" id="cb7-6" title="6"><span class="co">#&gt;        User      System verstrichen </span></a>
-<a class="sourceLine" id="cb7-7" title="7"><span class="co">#&gt;       4.039       0.000       4.039</span></a>
-<a class="sourceLine" id="cb7-8" title="8"><span class="kw">system.time</span>(<span class="kw">anticlustering</span>(data, <span class="dt">K =</span> K, <span class="dt">preclustering =</span> <span class="ot">TRUE</span>))</a>
-<a class="sourceLine" id="cb7-9" title="9"><span class="co">#&gt;        User      System verstrichen </span></a>
-<a class="sourceLine" id="cb7-10" title="10"><span class="co">#&gt;       0.107       0.000       0.108</span></a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a>N &lt;-<span class="st"> </span><span class="dv">1000</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a>M &lt;-<span class="st"> </span><span class="dv">5</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a>K &lt;-<span class="st"> </span><span class="dv">3</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true"></a>data &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">rnorm</span>(N<span class="op">*</span>M), <span class="dt">ncol =</span> M)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true"></a><span class="kw">system.time</span>(<span class="kw">anticlustering</span>(data, <span class="dt">K =</span> K))</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true"></a><span class="co">#&gt;        User      System verstrichen </span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true"></a><span class="co">#&gt;       4.241       0.000       4.241</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true"></a><span class="kw">system.time</span>(<span class="kw">anticlustering</span>(data, <span class="dt">K =</span> K, <span class="dt">preclustering =</span> <span class="ot">TRUE</span>))</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true"></a><span class="co">#&gt;        User      System verstrichen </span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true"></a><span class="co">#&gt;       0.097       0.000       0.097</span></span></code></pre></div>
 <p>Still, the preclustering approach is probably not necessarily recommended to speed up anticlustering for very large data sets; it is useful if you are interested in enforcing the preclustering restrictions in the groupings.</p>
 </div>
 <div id="secret-hack" class="section level3">
 <h3>Secret hack</h3>
 <p>There is also an additional “hidden” method to make the <code>anticlustering()</code> function run faster. This method also relies on using fewer exchange partners during the exchange process, but does not use preclustering or the approach used in <code>fast_anticlustering()</code>. This approach is documented here and mostly relies on a dirty “hack” involving the <code>anticlustering()</code> argument <code>categories</code>. Since it works with <code>anticlustering()</code>, it can be used for all anticlustering objectives (unlike <code>fast_anticlustering()</code>). Let’s see how it works:</p>
 <p>The first step that I am using here is not strictly necessary—in the next section, we will learn more about what this accomplishes—but let’s create the initial clusters before calling <code>anticlustering()</code>. This grouping is the basis on which the exchange procedure starts to improve the anticlustering:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1">N &lt;-<span class="st"> </span><span class="kw">nrow</span>(iris)</a>
-<a class="sourceLine" id="cb8-2" title="2">K &lt;-<span class="st"> </span><span class="dv">3</span></a>
-<a class="sourceLine" id="cb8-3" title="3">initial_clusters &lt;-<span class="st"> </span><span class="kw">sample</span>(<span class="kw">rep_len</span>(<span class="dv">1</span><span class="op">:</span>K, N))</a>
-<a class="sourceLine" id="cb8-4" title="4">initial_clusters</a>
-<a class="sourceLine" id="cb8-5" title="5"><span class="co">#&gt;   [1] 3 2 2 1 3 3 2 3 3 3 3 1 1 3 2 3 2 1 3 3 2 1 2 1 3 2 1 3 2 1 1 3 3 1 1 1 1</span></a>
-<a class="sourceLine" id="cb8-6" title="6"><span class="co">#&gt;  [38] 3 1 3 3 2 2 2 2 2 2 3 2 1 3 2 2 2 1 2 3 1 2 1 3 2 2 3 3 3 1 2 3 3 3 2 3 1</span></a>
-<a class="sourceLine" id="cb8-7" title="7"><span class="co">#&gt;  [75] 3 1 1 2 3 1 2 1 3 1 3 3 1 2 2 2 2 3 3 3 1 1 1 2 3 3 2 3 1 3 1 1 2 2 1 2 1</span></a>
-<a class="sourceLine" id="cb8-8" title="8"><span class="co">#&gt; [112] 2 1 2 3 1 2 3 1 1 3 2 1 3 1 2 1 3 2 2 3 1 2 1 1 3 3 2 1 2 1 2 2 2 2 3 1 1</span></a>
-<a class="sourceLine" id="cb8-9" title="9"><span class="co">#&gt; [149] 1 1</span></a>
-<a class="sourceLine" id="cb8-10" title="10"><span class="kw">table</span>(initial_clusters)</a>
-<a class="sourceLine" id="cb8-11" title="11"><span class="co">#&gt; initial_clusters</span></a>
-<a class="sourceLine" id="cb8-12" title="12"><span class="co">#&gt;  1  2  3 </span></a>
-<a class="sourceLine" id="cb8-13" title="13"><span class="co">#&gt; 50 50 50</span></a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a>N &lt;-<span class="st"> </span><span class="kw">nrow</span>(iris)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a>K &lt;-<span class="st"> </span><span class="dv">3</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true"></a>initial_clusters &lt;-<span class="st"> </span><span class="kw">sample</span>(<span class="kw">rep_len</span>(<span class="dv">1</span><span class="op">:</span>K, N))</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true"></a>initial_clusters</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true"></a><span class="co">#&gt;   [1] 3 2 2 1 3 3 2 3 3 3 3 1 1 3 2 3 2 1 3 3 2 1 2 1 3 2 1 3 2 1 1 3 3 1 1 1 1</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true"></a><span class="co">#&gt;  [38] 3 1 3 3 2 2 2 2 2 2 3 2 1 3 2 2 2 1 2 3 1 2 1 3 2 2 3 3 3 1 2 3 3 3 2 3 1</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true"></a><span class="co">#&gt;  [75] 3 1 1 2 3 1 2 1 3 1 3 3 1 2 2 2 2 3 3 3 1 1 1 2 3 3 2 3 1 3 1 1 2 2 1 2 1</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true"></a><span class="co">#&gt; [112] 2 1 2 3 1 2 3 1 1 3 2 1 3 1 2 1 3 2 2 3 1 2 1 1 3 3 2 1 2 1 2 2 2 2 3 1 1</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true"></a><span class="co">#&gt; [149] 1 1</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true"></a><span class="kw">table</span>(initial_clusters)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true"></a><span class="co">#&gt; initial_clusters</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true"></a><span class="co">#&gt;  1  2  3 </span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true"></a><span class="co">#&gt; 50 50 50</span></span></code></pre></div>
 <p>Now, the argument <code>categories</code> can be used to define which elements serve as exchange partners for each other. Lets create random groups of 10 elements that serve as exchange elements for each other:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1">exchange_partners &lt;-<span class="st"> </span><span class="kw">sample</span>(<span class="kw">rep_len</span>(<span class="dv">1</span><span class="op">:</span>(N<span class="op">/</span><span class="dv">10</span>), N)) <span class="co">#somewhat ugly but works</span></a>
-<a class="sourceLine" id="cb9-2" title="2">exchange_partners</a>
-<a class="sourceLine" id="cb9-3" title="3"><span class="co">#&gt;   [1]  6  7 13  1  8  2 10  9  2 14  7 14  8  9 14  8 12  3  2  1  5  9  5  6 10</span></a>
-<a class="sourceLine" id="cb9-4" title="4"><span class="co">#&gt;  [26]  3  9  1 11 10  8  4 12 15 13  7  7  3 12  5 14 15  5 12 10 11  7  4  8 13</span></a>
-<a class="sourceLine" id="cb9-5" title="5"><span class="co">#&gt;  [51] 10 14  9  5 10 14 13 12 15  4  4 11  4 15 11  6  1  1 12  6 13 12  3 15 12</span></a>
-<a class="sourceLine" id="cb9-6" title="6"><span class="co">#&gt;  [76]  2  8 11  3  4 11  9  3  1  5  2  7  7  1 14 11 11  9 13  9  1  6  5  1  8</span></a>
-<a class="sourceLine" id="cb9-7" title="7"><span class="co">#&gt; [101]  8  5 10 15 14 15 13  7  7  5  2 15  4  6 10 15 12  9  8  5 11  3  7  2 15</span></a>
-<a class="sourceLine" id="cb9-8" title="8"><span class="co">#&gt; [126]  2 14 13 10  4 13  6  4  3  2  3 14  4  8  2  3 10  6  9  6 13  6 12 11  1</span></a>
-<a class="sourceLine" id="cb9-9" title="9"><span class="kw">table</span>(exchange_partners)</a>
-<a class="sourceLine" id="cb9-10" title="10"><span class="co">#&gt; exchange_partners</span></a>
-<a class="sourceLine" id="cb9-11" title="11"><span class="co">#&gt;  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 </span></a>
-<a class="sourceLine" id="cb9-12" title="12"><span class="co">#&gt; 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10</span></a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a>exchange_partners &lt;-<span class="st"> </span><span class="kw">sample</span>(<span class="kw">rep_len</span>(<span class="dv">1</span><span class="op">:</span>(N<span class="op">/</span><span class="dv">10</span>), N)) <span class="co">#somewhat ugly but works</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a>exchange_partners</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a><span class="co">#&gt;   [1]  6  7 13  1  8  2 10  9  2 14  7 14  8  9 14  8 12  3  2  1  5  9  5  6 10</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true"></a><span class="co">#&gt;  [26]  3  9  1 11 10  8  4 12 15 13  7  7  3 12  5 14 15  5 12 10 11  7  4  8 13</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true"></a><span class="co">#&gt;  [51] 10 14  9  5 10 14 13 12 15  4  4 11  4 15 11  6  1  1 12  6 13 12  3 15 12</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true"></a><span class="co">#&gt;  [76]  2  8 11  3  4 11  9  3  1  5  2  7  7  1 14 11 11  9 13  9  1  6  5  1  8</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true"></a><span class="co">#&gt; [101]  8  5 10 15 14 15 13  7  7  5  2 15  4  6 10 15 12  9  8  5 11  3  7  2 15</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true"></a><span class="co">#&gt; [126]  2 14 13 10  4 13  6  4  3  2  3 14  4  8  2  3 10  6  9  6 13  6 12 11  1</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true"></a><span class="kw">table</span>(exchange_partners)</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true"></a><span class="co">#&gt; exchange_partners</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true"></a><span class="co">#&gt;  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 </span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true"></a><span class="co">#&gt; 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10</span></span></code></pre></div>
 <p>The variable <code>exchange_partners</code> now defines groups of elements that are exchanged with each other: When passed to <code>categories</code>, only elements having the same value in <code>exchange_partners</code> serve as exchange partners for each other – this is how the <code>categories</code> argument operates. Thus, each element is only swapped with 9 other elements instead of all 150 elements.</p>
 <p>Now let’s call anticlustering using the exchange partners we just defined:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1"><span class="kw">system.time</span>(<span class="kw">anticlustering</span>(iris[, <span class="dv">-5</span>], <span class="dt">K =</span> initial_clusters))</a>
-<a class="sourceLine" id="cb10-2" title="2"><span class="co">#&gt;        User      System verstrichen </span></a>
-<a class="sourceLine" id="cb10-3" title="3"><span class="co">#&gt;       0.008       0.000       0.008</span></a>
-<a class="sourceLine" id="cb10-4" title="4"><span class="kw">system.time</span>(<span class="kw">anticlustering</span>(iris[, <span class="dv">-5</span>], <span class="dt">K =</span> initial_clusters, <span class="dt">categories =</span> exchange_partners))</a>
-<a class="sourceLine" id="cb10-5" title="5"><span class="co">#&gt;        User      System verstrichen </span></a>
-<a class="sourceLine" id="cb10-6" title="6"><span class="co">#&gt;       0.004       0.000       0.004</span></a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a><span class="kw">system.time</span>(<span class="kw">anticlustering</span>(iris[, <span class="dv">-5</span>], <span class="dt">K =</span> initial_clusters))</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true"></a><span class="co">#&gt;        User      System verstrichen </span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true"></a><span class="co">#&gt;       0.007       0.000       0.007</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true"></a><span class="kw">system.time</span>(<span class="kw">anticlustering</span>(iris[, <span class="dv">-5</span>], <span class="dt">K =</span> initial_clusters, <span class="dt">categories =</span> exchange_partners))</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true"></a><span class="co">#&gt;        User      System verstrichen </span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true"></a><span class="co">#&gt;       0.003       0.000       0.002</span></span></code></pre></div>
 <p>Well, there is not a lot going on here with this very small data set (N = 150), so let’s do this for a larger data set with 1000 data points.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" title="1">N &lt;-<span class="st"> </span><span class="dv">1000</span></a>
-<a class="sourceLine" id="cb11-2" title="2">M &lt;-<span class="st"> </span><span class="dv">2</span></a>
-<a class="sourceLine" id="cb11-3" title="3">K &lt;-<span class="st"> </span><span class="dv">5</span></a>
-<a class="sourceLine" id="cb11-4" title="4">data &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">rnorm</span>(M<span class="op">*</span>N), <span class="dt">ncol =</span> M)</a>
-<a class="sourceLine" id="cb11-5" title="5"></a>
-<a class="sourceLine" id="cb11-6" title="6">initial_clusters &lt;-<span class="st"> </span><span class="kw">sample</span>(<span class="kw">rep_len</span>(<span class="dv">1</span><span class="op">:</span>K, N))</a>
-<a class="sourceLine" id="cb11-7" title="7">exchange_partners &lt;-<span class="st"> </span><span class="kw">sample</span>(<span class="kw">rep_len</span>(<span class="dv">1</span><span class="op">:</span>(N<span class="op">/</span><span class="dv">10</span>), N))</a>
-<a class="sourceLine" id="cb11-8" title="8"></a>
-<a class="sourceLine" id="cb11-9" title="9"><span class="kw">system.time</span>(<span class="kw">anticlustering</span>(data, <span class="dt">K =</span> initial_clusters))</a>
-<a class="sourceLine" id="cb11-10" title="10"><span class="co">#&gt;        User      System verstrichen </span></a>
-<a class="sourceLine" id="cb11-11" title="11"><span class="co">#&gt;       3.101       0.000       3.101</span></a>
-<a class="sourceLine" id="cb11-12" title="12"><span class="kw">system.time</span>(<span class="kw">anticlustering</span>(data, <span class="dt">K =</span> initial_clusters, <span class="dt">categories =</span> exchange_partners))</a>
-<a class="sourceLine" id="cb11-13" title="13"><span class="co">#&gt;        User      System verstrichen </span></a>
-<a class="sourceLine" id="cb11-14" title="14"><span class="co">#&gt;       0.051       0.000       0.051</span></a></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a>N &lt;-<span class="st"> </span><span class="dv">1000</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a>M &lt;-<span class="st"> </span><span class="dv">2</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true"></a>K &lt;-<span class="st"> </span><span class="dv">5</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true"></a>data &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">rnorm</span>(M<span class="op">*</span>N), <span class="dt">ncol =</span> M)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true"></a>initial_clusters &lt;-<span class="st"> </span><span class="kw">sample</span>(<span class="kw">rep_len</span>(<span class="dv">1</span><span class="op">:</span>K, N))</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true"></a>exchange_partners &lt;-<span class="st"> </span><span class="kw">sample</span>(<span class="kw">rep_len</span>(<span class="dv">1</span><span class="op">:</span>(N<span class="op">/</span><span class="dv">10</span>), N))</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true"></a></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true"></a><span class="kw">system.time</span>(<span class="kw">anticlustering</span>(data, <span class="dt">K =</span> initial_clusters))</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true"></a><span class="co">#&gt;        User      System verstrichen </span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true"></a><span class="co">#&gt;       3.025       0.000       3.024</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true"></a><span class="kw">system.time</span>(<span class="kw">anticlustering</span>(data, <span class="dt">K =</span> initial_clusters, <span class="dt">categories =</span> exchange_partners))</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true"></a><span class="co">#&gt;        User      System verstrichen </span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true"></a><span class="co">#&gt;       0.049       0.000       0.048</span></span></code></pre></div>
 <p>The speedup is enormous!</p>
 </div>
 <div id="including-categorical-variables" class="section level3">
 <h3>Including categorical variables</h3>
 <p>The previous “hacky” approach to speed up anticlustering used the <code>categories</code> argument. We should now reflect how this was accomplished, and first note that the <code>categories</code> argument usually has a different purpose: It is used to evenly distribute a categorical variable across groups—we did not care for that in the previous example.</p>
 <p>For example, coming back to the iris data set, we may require to evenly distribute the species of the iris plants across 5 groups of plants:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1">groups &lt;-<span class="st"> </span><span class="kw">anticlustering</span>(iris[, <span class="dv">-5</span>], <span class="dt">K =</span> <span class="dv">5</span>, <span class="dt">categories =</span> iris<span class="op">$</span>Species)</a>
-<a class="sourceLine" id="cb12-2" title="2"><span class="kw">table</span>(groups, iris<span class="op">$</span>Species)</a>
-<a class="sourceLine" id="cb12-3" title="3"><span class="co">#&gt;       </span></a>
-<a class="sourceLine" id="cb12-4" title="4"><span class="co">#&gt; groups setosa versicolor virginica</span></a>
-<a class="sourceLine" id="cb12-5" title="5"><span class="co">#&gt;      1     10         10        10</span></a>
-<a class="sourceLine" id="cb12-6" title="6"><span class="co">#&gt;      2     10         10        10</span></a>
-<a class="sourceLine" id="cb12-7" title="7"><span class="co">#&gt;      3     10         10        10</span></a>
-<a class="sourceLine" id="cb12-8" title="8"><span class="co">#&gt;      4     10         10        10</span></a>
-<a class="sourceLine" id="cb12-9" title="9"><span class="co">#&gt;      5     10         10        10</span></a></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a>groups &lt;-<span class="st"> </span><span class="kw">anticlustering</span>(iris[, <span class="dv">-5</span>], <span class="dt">K =</span> <span class="dv">5</span>, <span class="dt">categories =</span> iris<span class="op">$</span>Species)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true"></a><span class="kw">table</span>(groups, iris<span class="op">$</span>Species)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true"></a><span class="co">#&gt;       </span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true"></a><span class="co">#&gt; groups setosa versicolor virginica</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true"></a><span class="co">#&gt;      1     10         10        10</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true"></a><span class="co">#&gt;      2     10         10        10</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true"></a><span class="co">#&gt;      3     10         10        10</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true"></a><span class="co">#&gt;      4     10         10        10</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true"></a><span class="co">#&gt;      5     10         10        10</span></span></code></pre></div>
 <p>How does the <code>categories</code> argument accomplish the even spread of the species? First, the initial grouping of the elements is not random, but instead a “stratified split”, which ensures that a categorical variable occurs an equal number of times in each split. <code>anticlust</code> has the function <code>categorical_sampling()</code> for this purpose, which is called by <code>anticlustering()</code> internally before the exchange algorithm starts. After conducting the initial stratified split, only plants belonging to the same species serve as exchange partners for each other. This second purpose of the <code>categories</code> argument is the one that we used above to restrict the number of exchange partners to speed up anticlustering: Only elements that have the same value in <code>categories</code> serve as exchange partners for each other.</p>
 <p>In the example above, we prevented <code>anticlustering()</code> from conducting a stratified split on the basis of the <code>categories</code> argument because we passed the initial grouping of the variables ourselves. The insight that the <code>categories</code> argument has a twofold purpose—one of which can be shut down by using the <code>K</code> argument as the initial grouping vector—leads to the following approach, where I combine the speedup aspect of <code>categories</code> with the aspect of conducting a stratified split.</p>
 <p>First, we conduct a manual stratified split as the initial grouping vector for the <code>K</code> argument in <code>anticlustering()</code>:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" title="1">initial_groups &lt;-<span class="st"> </span><span class="kw">categorical_sampling</span>(iris<span class="op">$</span>Species, <span class="dt">K =</span> <span class="dv">5</span>)</a>
-<a class="sourceLine" id="cb13-2" title="2"><span class="kw">table</span>(initial_groups, iris<span class="op">$</span>Species) <span class="co"># even!</span></a>
-<a class="sourceLine" id="cb13-3" title="3"><span class="co">#&gt;               </span></a>
-<a class="sourceLine" id="cb13-4" title="4"><span class="co">#&gt; initial_groups setosa versicolor virginica</span></a>
-<a class="sourceLine" id="cb13-5" title="5"><span class="co">#&gt;              1     10         10        10</span></a>
-<a class="sourceLine" id="cb13-6" title="6"><span class="co">#&gt;              2     10         10        10</span></a>
-<a class="sourceLine" id="cb13-7" title="7"><span class="co">#&gt;              3     10         10        10</span></a>
-<a class="sourceLine" id="cb13-8" title="8"><span class="co">#&gt;              4     10         10        10</span></a>
-<a class="sourceLine" id="cb13-9" title="9"><span class="co">#&gt;              5     10         10        10</span></a></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true"></a>initial_groups &lt;-<span class="st"> </span><span class="kw">categorical_sampling</span>(iris<span class="op">$</span>Species, <span class="dt">K =</span> <span class="dv">5</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true"></a><span class="kw">table</span>(initial_groups, iris<span class="op">$</span>Species) <span class="co"># even!</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true"></a><span class="co">#&gt;               </span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true"></a><span class="co">#&gt; initial_groups setosa versicolor virginica</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true"></a><span class="co">#&gt;              1     10         10        10</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true"></a><span class="co">#&gt;              2     10         10        10</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true"></a><span class="co">#&gt;              3     10         10        10</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true"></a><span class="co">#&gt;              4     10         10        10</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true"></a><span class="co">#&gt;              5     10         10        10</span></span></code></pre></div>
 <p>Next, as in the previous section, we generate a vector that defines groups of pairwise exchange partners.</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" title="1">N &lt;-<span class="st"> </span><span class="kw">nrow</span>(iris)</a>
-<a class="sourceLine" id="cb14-2" title="2">exchange_partners &lt;-<span class="st"> </span><span class="kw">sample</span>(<span class="kw">rep_len</span>(<span class="dv">1</span><span class="op">:</span>(N<span class="op">/</span><span class="dv">10</span>), N))</a></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true"></a>N &lt;-<span class="st"> </span><span class="kw">nrow</span>(iris)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true"></a>exchange_partners &lt;-<span class="st"> </span><span class="kw">sample</span>(<span class="kw">rep_len</span>(<span class="dv">1</span><span class="op">:</span>(N<span class="op">/</span><span class="dv">10</span>), N))</span></code></pre></div>
 <p>Now, and this is the crucial part, we pass to the argument <code>categories</code> a matrix that contains both the species as well as the <code>exchange_partners</code> vector, and to the argument <code>K</code> the vector that encodes the stratified split. This way we ensure that:</p>
 <ol style="list-style-type: lower-alpha">
 <li>the species is split evenly between groups at the start of the algorithm (argument <code>K</code>)</li>
 <li>the number of exchange partners is restricted to 9 elements (one column of the argument <code>categories</code>)</li>
 <li>the exchange partners are from the same species, thereby ensuring that the species remains evenly distributed between groups (the other column of <code>categories</code>)</li>
 </ol>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" title="1">groups &lt;-<span class="st"> </span><span class="kw">anticlustering</span>(</a>
-<a class="sourceLine" id="cb15-2" title="2">  iris[, <span class="dv">-5</span>],</a>
-<a class="sourceLine" id="cb15-3" title="3">  <span class="dt">K =</span> initial_groups, </a>
-<a class="sourceLine" id="cb15-4" title="4">  <span class="dt">categories =</span> <span class="kw">cbind</span>(iris<span class="op">$</span>Species, exchange_partners)</a>
-<a class="sourceLine" id="cb15-5" title="5">)</a></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true"></a>groups &lt;-<span class="st"> </span><span class="kw">anticlustering</span>(</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true"></a>  iris[, <span class="dv">-5</span>],</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true"></a>  <span class="dt">K =</span> initial_groups, </span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true"></a>  <span class="dt">categories =</span> <span class="kw">cbind</span>(iris<span class="op">$</span>Species, exchange_partners)</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true"></a>)</span></code></pre></div>
 <p>The groups are still balanced after <code>anticlustering()</code> was called:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" title="1"><span class="kw">table</span>(groups, iris<span class="op">$</span>Species)</a>
-<a class="sourceLine" id="cb16-2" title="2"><span class="co">#&gt;       </span></a>
-<a class="sourceLine" id="cb16-3" title="3"><span class="co">#&gt; groups setosa versicolor virginica</span></a>
-<a class="sourceLine" id="cb16-4" title="4"><span class="co">#&gt;      1     10         10        10</span></a>
-<a class="sourceLine" id="cb16-5" title="5"><span class="co">#&gt;      2     10         10        10</span></a>
-<a class="sourceLine" id="cb16-6" title="6"><span class="co">#&gt;      3     10         10        10</span></a>
-<a class="sourceLine" id="cb16-7" title="7"><span class="co">#&gt;      4     10         10        10</span></a>
-<a class="sourceLine" id="cb16-8" title="8"><span class="co">#&gt;      5     10         10        10</span></a></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true"></a><span class="kw">table</span>(groups, iris<span class="op">$</span>Species)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true"></a><span class="co">#&gt;       </span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true"></a><span class="co">#&gt; groups setosa versicolor virginica</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true"></a><span class="co">#&gt;      1     10         10        10</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true"></a><span class="co">#&gt;      2     10         10        10</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true"></a><span class="co">#&gt;      3     10         10        10</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true"></a><span class="co">#&gt;      4     10         10        10</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true"></a><span class="co">#&gt;      5     10         10        10</span></span></code></pre></div>
 </div>
 </div>
 <div id="objective-function" class="section level2">
@@ -515,26 +545,26 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <p>As explained in the previous section, the anticlustering algorithms recompute the objective function for each attempted exchange. Computing the objective is therefore the major contributor to overall run time. In <code>anticlust</code>, I exploit the fact that anticlustering objectives can be recomputed faster when only two items have swapped between clusters and the objective value prior to the exchange is known. For example, computing the diversity objective “from scratch” is in <span class="math inline">\(O(N^2)\)</span>. When the cluster affiliation of only two items differs between swaps, it is however not necessary to spend the entire <span class="math inline">\(O(N^2)\)</span> time during each exchange. Instead, by “cleverly” updating the objective before and after the swap, the computation reduces to <span class="math inline">\(O(N)\)</span>, leading to about <span class="math inline">\(O(N^3)\)</span> for the entire exchange method (instead of <span class="math inline">\(O(N^4)\)</span>—this is a huge difference). When using a fixed number of exchange partners as described in the previous section, we are left with a run time of <span class="math inline">\(O(N^2)\)</span> <em>in total</em>. However, note that for very large data sets, using the diversity objective may not be feasible at all. The reason for this is that a quadratic matrix of between-item distances has to be computed and stored in memory. It is my experience that on a personal computer this becomes difficult for about &gt; 20000 elements (where the distance matrix has 20000^2 = 400000000 elements).</p>
 <p>Computing the standard k-means objective (which is done when using <code>anticlustering(..., objective = &quot;variance&quot;</code>) is in <span class="math inline">\(O(M \cdot N)\)</span>, where <span class="math inline">\(M\)</span> is the number of variables. The function <code>anticlustering()</code> uses some optimizations during the exchange process to prevent the entire re-computation of the cluster centroids for each exchange, which otherwise consumes most of the run time. However, this does not change the theoretical <span class="math inline">\(O(M \cdot N)\)</span> run time of the computation. The function <code>fast_anticlustering()</code> uses a different – but equivalent – formulation of the k-means objective where the re-computation of the objective only depends on <span class="math inline">\(M\)</span>, but no longer on <span class="math inline">\(N\)</span>.<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a> This reduces the run time by an additional order of magnitude and makes k-means anticlustering applicable to very large data sets (even in the millions).</p>
 <p>Because the k-means objective has some disadvantages for anticlustering (see Papenberg, 2024),<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a> you may consider using the k-plus objective, which extends—and effectively re-uses—the k-means criterion. It can also be applied to very large data sets using <code>fast_anticlustering()</code>. For example, the following code—using <span class="math inline">\(N = 100000\)</span>, <span class="math inline">\(K = 5\)</span>, 3 features and 10 exchange partners per element—runs quite quickly:</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" title="1">N &lt;-<span class="st"> </span><span class="dv">100000</span></a>
-<a class="sourceLine" id="cb17-2" title="2">M &lt;-<span class="st"> </span><span class="dv">3</span></a>
-<a class="sourceLine" id="cb17-3" title="3">K &lt;-<span class="st"> </span><span class="dv">5</span></a>
-<a class="sourceLine" id="cb17-4" title="4">data &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">rnorm</span>(M<span class="op">*</span>N), <span class="dt">ncol =</span> M)</a>
-<a class="sourceLine" id="cb17-5" title="5"></a>
-<a class="sourceLine" id="cb17-6" title="6">start &lt;-<span class="st"> </span><span class="kw">Sys.time</span>()</a>
-<a class="sourceLine" id="cb17-7" title="7">groups &lt;-<span class="st"> </span><span class="kw">fast_anticlustering</span>(</a>
-<a class="sourceLine" id="cb17-8" title="8">  <span class="kw">kplus_moment_variables</span>(data, <span class="dt">T =</span> <span class="dv">2</span>), </a>
-<a class="sourceLine" id="cb17-9" title="9">  <span class="dt">K =</span> K, </a>
-<a class="sourceLine" id="cb17-10" title="10">  <span class="dt">exchange_partners =</span> <span class="kw">generate_exchange_partners</span>(<span class="dv">10</span>, <span class="dt">N =</span> N)</a>
-<a class="sourceLine" id="cb17-11" title="11">)</a>
-<a class="sourceLine" id="cb17-12" title="12"><span class="kw">Sys.time</span>() <span class="op">-</span><span class="st"> </span>start</a>
-<a class="sourceLine" id="cb17-13" title="13"><span class="co">#&gt; Time difference of 6.468639 secs</span></a>
-<a class="sourceLine" id="cb17-14" title="14"><span class="kw">mean_sd_tab</span>(data, groups) <span class="co"># means and standard deviations are similar</span></a>
-<a class="sourceLine" id="cb17-15" title="15"><span class="co">#&gt;   [,1]          [,2]           [,3]         </span></a>
-<a class="sourceLine" id="cb17-16" title="16"><span class="co">#&gt; 1 &quot;0.00 (1.00)&quot; &quot;-0.01 (1.00)&quot; &quot;0.00 (1.00)&quot;</span></a>
-<a class="sourceLine" id="cb17-17" title="17"><span class="co">#&gt; 2 &quot;0.00 (1.00)&quot; &quot;-0.01 (1.00)&quot; &quot;0.00 (1.00)&quot;</span></a>
-<a class="sourceLine" id="cb17-18" title="18"><span class="co">#&gt; 3 &quot;0.00 (1.00)&quot; &quot;-0.01 (1.00)&quot; &quot;0.00 (1.00)&quot;</span></a>
-<a class="sourceLine" id="cb17-19" title="19"><span class="co">#&gt; 4 &quot;0.00 (1.00)&quot; &quot;-0.01 (1.00)&quot; &quot;0.00 (1.00)&quot;</span></a>
-<a class="sourceLine" id="cb17-20" title="20"><span class="co">#&gt; 5 &quot;0.00 (1.00)&quot; &quot;-0.01 (1.00)&quot; &quot;0.00 (1.00)&quot;</span></a></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true"></a>N &lt;-<span class="st"> </span><span class="dv">100000</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true"></a>M &lt;-<span class="st"> </span><span class="dv">3</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true"></a>K &lt;-<span class="st"> </span><span class="dv">5</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true"></a>data &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">rnorm</span>(M<span class="op">*</span>N), <span class="dt">ncol =</span> M)</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true"></a></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true"></a>start &lt;-<span class="st"> </span><span class="kw">Sys.time</span>()</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true"></a>groups &lt;-<span class="st"> </span><span class="kw">fast_anticlustering</span>(</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true"></a>  <span class="kw">kplus_moment_variables</span>(data, <span class="dt">T =</span> <span class="dv">2</span>), </span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true"></a>  <span class="dt">K =</span> K, </span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true"></a>  <span class="dt">exchange_partners =</span> <span class="kw">generate_exchange_partners</span>(<span class="dv">10</span>, <span class="dt">N =</span> N)</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true"></a>)</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true"></a><span class="kw">Sys.time</span>() <span class="op">-</span><span class="st"> </span>start</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true"></a><span class="co">#&gt; Time difference of 4.41572 secs</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true"></a><span class="kw">mean_sd_tab</span>(data, groups) <span class="co"># means and standard deviations are similar</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true"></a><span class="co">#&gt;   [,1]          [,2]           [,3]         </span></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true"></a><span class="co">#&gt; 1 &quot;0.00 (1.00)&quot; &quot;-0.01 (1.00)&quot; &quot;0.00 (1.00)&quot;</span></span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true"></a><span class="co">#&gt; 2 &quot;0.00 (1.00)&quot; &quot;-0.01 (1.00)&quot; &quot;0.00 (1.00)&quot;</span></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true"></a><span class="co">#&gt; 3 &quot;0.00 (1.00)&quot; &quot;-0.01 (1.00)&quot; &quot;0.00 (1.00)&quot;</span></span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true"></a><span class="co">#&gt; 4 &quot;0.00 (1.00)&quot; &quot;-0.01 (1.00)&quot; &quot;0.00 (1.00)&quot;</span></span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true"></a><span class="co">#&gt; 5 &quot;0.00 (1.00)&quot; &quot;-0.01 (1.00)&quot; &quot;0.00 (1.00)&quot;</span></span></code></pre></div>
 <p>When k-plus anticlustering is conducted with <code>fast_anticlustering()</code>, we have to augment the numeric input with so called k-plus variables to ensure that k-plus anticlustering is actually performed (because otherwise <code>fast_anticlustering()</code> just performs k-means anticlustering). We should also use the argument <code>exchange_partners</code> instead of relying on the default nearest neighbour search, because searching nearest neighbours based on the k-plus variables does not really make sense (even though it probably wouldn’t hurt too much).</p>
 </div>
 <div id="references" class="section level2">
@@ -546,9 +576,9 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <div class="footnotes">
 <hr />
 <ol>
-<li id="fn1"><p>Actually, four objectives are natively supported for the <code>anticlustering()</code> argument <code>objective</code>: <code>&quot;diversity&quot;</code>, <code>&quot;variance&quot;</code> (i.e, k-means), <code>&quot;kplus&quot;</code> and <code>&quot;dispersion&quot;</code>. However, the k-plus objective as implemented in <code>anticlust</code> effectively re-uses the original k-means criterion and just extends the input data internally. So, k-plus anticlustering will be somewhat slower than k-means anticlustering because the number of variables <span class="math inline">\(M\)</span> does contribute to the overall run time; however, the run time is usually dominated by <span class="math inline">\(N\)</span>, the number of elements. The dispersion objective has a different goal than the other objectives as it does not strive for between-group similarity, so it cannot be used as an alternative to the other objectives.<a href="#fnref1" class="footnote-back">↩</a></p></li>
-<li id="fn2"><p><code>fast_anticlustering()</code> minimizes the weighted sum of squared distances between cluster centroids and the overall data centroid; the distances between all individual data points and their cluster center are no longer computed.<a href="#fnref2" class="footnote-back">↩</a></p></li>
-<li id="fn3"><p>The primary disadvantage is that k-means anticlustering only leads to similarity in means, but not in standard deviations or any other distribution aspects; the k-plus criterion can be used to equalize any distribution moments between groups.<a href="#fnref3" class="footnote-back">↩</a></p></li>
+<li id="fn1"><p>Actually, four objectives are natively supported for the <code>anticlustering()</code> argument <code>objective</code>: <code>&quot;diversity&quot;</code>, <code>&quot;variance&quot;</code> (i.e, k-means), <code>&quot;kplus&quot;</code> and <code>&quot;dispersion&quot;</code>. However, the k-plus objective as implemented in <code>anticlust</code> effectively re-uses the original k-means criterion and just extends the input data internally. So, k-plus anticlustering will be somewhat slower than k-means anticlustering because the number of variables <span class="math inline">\(M\)</span> does contribute to the overall run time; however, the run time is usually dominated by <span class="math inline">\(N\)</span>, the number of elements. The dispersion objective has a different goal than the other objectives as it does not strive for between-group similarity, so it cannot be used as an alternative to the other objectives.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p><code>fast_anticlustering()</code> minimizes the weighted sum of squared distances between cluster centroids and the overall data centroid; the distances between all individual data points and their cluster center are no longer computed.<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn3"><p>The primary disadvantage is that k-means anticlustering only leads to similarity in means, but not in standard deviations or any other distribution aspects; the k-plus criterion can be used to equalize any distribution moments between groups.<a href="#fnref3" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
 
