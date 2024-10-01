@@ -24,7 +24,7 @@
 #'     to anticlusters before the optimization starts.
 #' @param objective The objective to be maximized. The options
 #'     "diversity" (default; previously called "distance", which is
-#'     still supported), "variance", "kplus" and "dispersion" are
+#'     still supported), "average-diversity", "variance", "kplus" and "dispersion" are
 #'     natively supported. May also be a user-defined function. See
 #'     Details.
 #' @param method One of "exchange" (default) , "local-maximum",
@@ -43,7 +43,10 @@
 #'     feature matrix, the data is standardized through a call to
 #'     \code{\link{scale}} before the optimization starts. This
 #'     argument is silently ignored if \code{x} is a distance matrix.
-#'     
+#' @param cannot_link A 2 column matrix where each row has the indices 
+#'     of two elements that must not be assigned to the same anticluster.
+#' @param must_link A numeric vector of length \code{nrow(x)}. Elements having 
+#'     the same value in this vector are assigned to the same anticluster.
 #'
 #' @return A vector of length N that assigns a group (i.e, a number
 #'     between 1 and \code{K}) to each input element.
@@ -65,16 +68,18 @@
 #' within groups are heterogeneous and the different groups are
 #' similar. Anticlustering is accomplished by maximizing instead of
 #' minimizing a clustering objective function. The maximization of
-#' four clustering objective functions is natively supported (other
+#' five objectives is natively supported (other
 #' functions can also defined by the user as described below):
 #' 
 #' \itemize{
-#'   \item{the `diversity`, setting 
+#'   \item{the diversity, setting 
 #'         \code{objective = "diversity"} (this is the default objective)}
-#'   \item{k-means `variance` objective, setting \code{objective = "variance"}}
-#'   \item{`k-plus` objective, an extension of the k-means variance criterion,
+#'   \item{the average diversity, which normalizes the diversity by cluster size, 
+#'        setting \code{objective = "average-diversity"}}
+#'   \item{the k-means (or "variance") objective, setting \code{objective = "variance"}}
+#'   \item{the k-plus objective, an extension of the k-means objective,
 #'         setting \code{objective = "kplus"}}
-#'   \item{the `dispersion` objective is the minimum distance between 
+#'   \item{the dispersion, which is the minimum distance between 
 #'         any two elements within the same cluster (setting 
 #'         \code{objective = "dispersion"})}
 #' }
@@ -102,12 +107,17 @@
 #' criterion maximizes between-group similarity
 #' by maximizing within-group heterogeneity (represented as the sum of all pairwise distances). 
 #' If it is computed on the basis of the Euclidean distance (which is the default
-#' behaviour if \code{x} is a feature matrix), the diversity is an all rounder objective that tends to equalize all distribution 
+#' behaviour if \code{x} is a feature matrix), the diversity is an all rounder objective that 
+#' tends to equate all distribution 
 #' characteristics between groups (such as means, variances, ...). 
 #' Note that the equivalence of within-group heterogeneity and between-group similarity only
 #' holds for equal-sized groups. For unequal-sized groups, it is recommended to
-#' use a different objective when striving for overall between-group similarity
-#' (e.g., the k-plus objective). In the publication that introduces
+#' use a different objective when striving for overall between-group similarity,
+#' e.g., the k-plus objective or the \code{"average-diversity"}. The average diversity
+#' was introduced in version 0.8.6, and it is more useful if groups are not 
+#' equal-sized. The average diversity normalizes the sum of intra-cluster distances 
+#' by group size. If all groups are equal-sized, it is equivalent to the 
+#' regular diversity. In the publication that introduces
 #' the \code{anticlust} package (Papenberg & Klau, 2021), we used the term "anticluster 
 #' editing" to refer to the maximization of the diversity, because the reversed 
 #' procedure - minimizing the diversity - is also known as "cluster editing". 
@@ -195,33 +205,63 @@
 #' anticlustering, ILP methods will also fail at some point (i.e.,
 #' when N increases).
 #'
-#' For the objectives \code{diversity} and \code{dispersion},
 #' \code{anticlust} implements optimal solution algorithms via integer
 #' linear programming. In order to use the ILP methods, set
 #' \code{method = "ilp"}. The integer linear program optimizing the
 #' diversity was described in Papenberg & Klau, (2021; (8) -
-#' (12)). The documentation of the function
-#' \code{\link{optimal_dispersion}} has more information on the
-#' optimal maximization of the dispersion (this is the function that is called internally by
-#' anticlustering() when using \code{objective = "dispersion"} and
-#' \code{method = "ilp"}). The ILP methods either require the R
-#' package \code{Rglpk} and the GNU linear programming kit
-#' (<http://www.gnu.org/software/glpk/>), or the R package
-#' \code{Rsymphony} and the COIN-OR SYMPHONY solver libraries
-#' (<https://github.com/coin-or/SYMPHONY>). The function will try to
-#' find the GLPK or SYMPHONY solver and throw an error if none is
-#' available. If both are found, the GLPK solver is used. Use the functions
-#' \code{\link{optimal_anticlustering}} or \code{\link{optimal_dispersion}}
-#' to manually select a solver.
+#' (12)). It can also be used to optimize the k-means and k-plus objectives,
+#' but you actually have to use the function \code{\link{optimal_anticlustering}}
+#' for these objectives. The documentation of the function
+#' \code{\link{optimal_dispersion}} and \code{\link{optimal_anticlustering}}
+#' contain more information on the optimal anticlustering algorithms.
+#' 
+#' \strong{Categorical variables}
 #'
-#' Optimally maximizing the diversity only works for rather small N
-#' and K; N = 20 and K = 2 is usually solved within some seconds, but
-#' the run time quickly increases with increasing N (or K). The
-#' maximum dispersion problem can be solved for much larger instances,
-#' especially for K = 2 (which in theory is not even NP hard; note
-#' that for the diversity, K = 2 is already NP hard). For K = 3, and K
-#' = 4, several 100 elements can usually be processed, especially when
-#' installing the SYMPHONY solver.
+#' There are two ways to balance categorical variables among anticlusters (also 
+#' see the package vignette "Using categorical variables with anticlustering").
+#' The first way is to treat them as "hard constraints" via the argument 
+#' \code{categories} (see Papenberg & Klau, 2021). If done so, balancing the 
+#' categorical variable is accomplished via \code{categorical_sampling} through
+#' a stratified split before the anticlustering optimization. After that, the 
+#' balance is never changed when the algorithm runs (hence, it is a "hard constraint"). 
+#' When \code{categories} has multiple columns (i.e., there are multiple 
+#' categorical variables), each combination of categories is treated as a
+#'  distinct category by the exchange method (i.e., the multiple columns
+#' are "merged" into a single column). This behaviour may lead
+#' to less than optimal results on the level of each single categorical variable.
+#' In this case, it may be useful to treat the categorical variables as part of 
+#' the numeric data, i.e., the first argument \code{x} via binary coding 
+#' (e.g. using \code{\link{categories_to_binary}}). The examples show how to do this 
+#' when using the bicriterion algorithm by Bruso et al. Using the argument 
+#' \code{categories} is only available for the classical exchange procedures, 
+#' that is, for \code{method = "exchange"} and \code{method = "local-maximum"}. 
+#' 
+#' \strong{Anticlustering with constraints}
+#' 
+#' Versions 0.8.6 and 0.8.7 of anticlust introduced the possibility to induce
+#' cannot-link and must-link constraints with anticlustering with 
+#' the arguments \code{cannot_link} and \code{must_link}, respectively.
+#' Cannot-link constraints ensure that pairs of items are assigned to different
+#' clusters. They are given as a 2-column matrix, where each row has the indices
+#' of two elements, which must not be assigned to the same cluster. It is possible
+#' that a set of cannot-link constraints cannot be fulfilled. To verify whether
+#' the constraints cannot be fulfilled (and to actually assign elements 
+#' while respecting the constraints), a graph coloring algorithm algorithm is used.
+#' This algorithm is is actually the same method as used in \code{\link{optimal_dispersion}}. 
+#' The graph coloring algorithm uses an ILP solver and it greatly profits (that is,
+#' it may be much faster) from the Rsymphony package, which is not installed as 
+#' a necessary dependency with anticlust. It is therefore recommended to 
+#' manually install the Rsymphony package, which is then automatically 
+#' selected as solver when using the \code{must_link} argument. 
+#' 
+#' Must-link constraints are passed as a single vector of length \code{nrow(x)}.
+#' Positions that have the same numeric index are assigned to the same anticluster 
+#' (if the constraints can be fulfilled).
+#' 
+#' The examples illustrate the usage of the \code{must_link} and \code{cannot_link}
+#' arguments. Currently, the different kinds of constraints (arguments \code{must_link}, 
+#' \code{cannot_link}, and \code{categories}) cannot be used together, but this 
+#' may change in future versions. 
 #' 
 #' \strong{Preclustering}
 #' 
@@ -242,19 +282,6 @@
 #' the anticlustering result is no longer guaranteed to be globally optimal, but
 #' only optimal given the preclustering restrictions.
 #' 
-#' \strong{Categorical variables}
-#'
-#' The argument \code{categories} may induce categorical constraints,
-#' i.e., can be used to distribute categorical variables evenly
-#' between sets.  The grouping variables indicated by
-#' \code{categories} will be balanced out across anticlusters. This
-#' functionality is only available for the classical exchange
-#' procedures, that is, for \code{method = "exchange"} and
-#' \code{method = "local-maximum"}. When \code{categories} has multiple columns 
-#' (i.e., there are multiple categorical variables), each combination of categories is
-#' treated as a distinct category by the exchange method (i.e., the multiple columns
-#' are "merged" into a single column). This behaviour may lead
-#' to less than optimal results on the level of each single categorical variable.
 #' 
 #' \strong{Optimize a custom objective function}
 #' 
@@ -277,17 +304,16 @@
 #' 
 #' @examples
 #'
-#' # Optimize the default diversity criterion
+#' # Use default method ("exchange") and the default diversity criterion, also include
+#' # a categorical variable via argument `categories`:
 #' anticlusters <- anticlustering(
 #'   schaper2019[, 3:6],
 #'   K = 3,
 #'   categories = schaper2019$room
 #' )
-#' # Compare feature means by anticluster
-#' by(schaper2019[, 3:6], anticlusters, function(x) round(colMeans(x), 2))
-#' # Compare standard deviations by anticluster
-#' by(schaper2019[, 3:6], anticlusters, function(x) round(apply(x, 2, sd), 2))
-#' # check that the "room" is balanced across anticlusters:
+#' # Compare feature means and standard deviations by anticluster
+#' mean_sd_tab(schaper2019[, 3:6], anticlusters)
+#' # Verify that the "room" is balanced across anticlusters:
 #' table(anticlusters, schaper2019$room)
 #' 
 #' # Use multiple starts of the algorithm to improve the objective and
@@ -297,12 +323,11 @@
 #'   objective = "variance",
 #'   K = 3,
 #'   categories = schaper2019$room,
-#'   method = "local-maximum",
-#'   repetitions = 2
+#'   method = "local-maximum", # better search algorithm
+#'   repetitions = 20 # multiple restarts of the algorithm 
 #' )
 #' # Compare means and standard deviations by anticluster
-#' by(schaper2019[, 3:6], anticlusters, function(x) round(colMeans(x), 2))
-#' by(schaper2019[, 3:6], anticlusters, function(x) round(apply(x, 2, sd), 2))
+#' mean_sd_tab(schaper2019[, 3:6], anticlusters)
 #' 
 #' # Use different group sizes and optimize the extended k-means
 #' # criterion ("kplus")
@@ -311,17 +336,50 @@
 #'   objective = "kplus",
 #'   K = c(24, 24, 48),
 #'   categories = schaper2019$room,
-#'   repetitions = 10,
+#'   repetitions = 20,
 #'   method = "local-maximum",
-#'   standardize = TRUE
+#'   standardize = TRUE # ususally recommended
 #' )
 #' 
+#' # Use cannot_link constraints: Element 1 must not be linked with elements 2 to 10:
+#' cl_matrix <- matrix(c(rep(1, 9), 2:10), ncol = 2)
+#' cl <- anticlustering(
+#'   schaper2019[, 3:6],
+#'   K = 10,
+#'   cannot_link = cl_matrix
+#' )
+#' all(cl[1] != cl[2:10])
+#' 
+#' # Use cannot_link constraints: Element 1 must be linked with elements 2 to 10.
+#' # Element 11 must be linked with elements 12-20.
+#' must_link <- rep(NA, nrow(schaper2019))
+#' must_link[1:10] <- 1
+#' must_link[11:20] <- 2
+#' cl <- anticlustering(
+#'   schaper2019[, 3:6],
+#'   K = 3,
+#'   must_link = must_link
+#' )
+#' cl[1:10]
+#' cl[11:20]
+#' 
+#' # Use the heuristic by Brusco et al. (2020) for k-plus anticlustering
+#' # Include categorical variable as part of the optimization criterion rather 
+#' # than the argument categories!
+#' anticlusters <- anticlustering(
+#'   cbind(
+#'     kplus_moment_variables(schaper2019[, 3:6], 2), 
+#'     categories_to_binary(schaper2019$room)
+#'   ),
+#'   objective = "variance", # k-plus anticlustering because of the input above!
+#'   K = 3,
+#'   repetitions = 20,
+#'   method = "brusco"
+#' )
+#' 
+#' mean_sd_tab(schaper2019[, 3:6], anticlusters)
 #' table(anticlusters, schaper2019$room)
-#' # Compare means and standard deviations by anticluster
-#' by(schaper2019[, 3:6], anticlusters, function(x) round(colMeans(x), 2))
-#' by(schaper2019[, 3:6], anticlusters, function(x) round(apply(x, 2, sd), 2))
-#'
-#'
+#' 
 #' @references
 #' 
 #' Brusco, M. J., Cradit, J. D., & Steinley, D. (2020). Combining
@@ -347,25 +405,58 @@
 
 anticlustering <- function(x, K, objective = "diversity", method = "exchange",
                            preclustering = FALSE, categories = NULL, 
-                           repetitions = NULL, standardize = FALSE) {
+                           repetitions = NULL, standardize = FALSE, cannot_link = NULL,
+                           must_link = NULL) {
 
 
   ## Get data into required format
   input_validation_anticlustering(x, K, objective, method, preclustering, 
-                                  categories, repetitions, standardize)
+                                  categories, repetitions, standardize, cannot_link,
+                                  must_link)
 
   x <- to_matrix(x)
+  N <- nrow(x)
   # there is a reason why scaling happens here and below (because of ILP + kplus)
   if (!is_distance_matrix(x) && standardize == TRUE) {
     x <- scale(x)
   }
+  
+  NUMBER_OF_ANTICLUSTERS <- length(table(initialize_clusters(N, K, NULL)))
+  TARGET_GROUPS <- table(initialize_clusters(N, K, NULL))
 
   ## Exact method using ILP
   if (method == "ilp") {
     if (objective == "dispersion") {
       return(optimal_dispersion(x, K)$groups)
     }
-    return(exact_anticlustering(x, K, preclustering))
+    return(exact_anticlustering(x, K, preclustering, cannot_link))
+  }
+  
+  if (argument_exists(cannot_link)) {
+    init <- initialize_clusters(N, K, NULL)
+    cannot_link <- as.matrix(cannot_link)
+    if (length(K) != N) { # no initial clustering was passed! Solve cannot-link constraints here
+      init <- optimal_cannot_link(N, NUMBER_OF_ANTICLUSTERS, table(init), cannot_link, repetitions)
+    }
+    return(cannot_link_anticlustering(
+      x = x, 
+      init_clusters = init,
+      cannot_link = cannot_link,
+      objective = objective,
+      method = method
+    ))
+  }
+  
+  if (argument_exists(must_link)) {
+    return(
+      must_link_anticlustering(
+        convert_to_distances(x), 
+        K, must_link = must_link, 
+        method = method, 
+        objective = "diversity", 
+        repetitions = repetitions
+      )
+    )
   }
 
   # Preclustering and categorical constraints are both processed in the
@@ -386,41 +477,49 @@ anticlustering <- function(x, K, objective = "diversity", method = "exchange",
     x <- scale(x)
   }
   
-  # In some cases, `anticlustering()` has to be called repeatedly - 
-  # redirect to `repeat_anticlustering()` in this case, which then
-  # again calls anticlustering with method "exchange" and 
-  # repetitions = NULL
-  if (method == "local-maximum" || 
-      (method == "exchange" && argument_exists(repetitions))) {
-    if (!argument_exists(repetitions)) {
-      repetitions <- 1
+  # BILS by Brusco et al.:
+  if (method == "brusco") {
+    average_diversity <- ifelse(objective == "average-diversity", TRUE, FALSE)
+    if (objective == "kplus") {
+      x <- kplus_moment_variables(x, 2)
+      objective <- "variance"
+    } 
+    if (objective == "variance") {
+      x <- convert_to_distances(x)^2
+      average_diversity <- TRUE
+      objective <- "average-diversity"
     }
-    return(repeat_anticlustering(x, K, objective, categories, method, repetitions))
+    return(bicriterion_anticlustering(x, K, repetitions, average_diversity = average_diversity, return = paste0("best-", objective)))
   }
   
-
-  if (method == "brusco") {
-    if (objective == "diversity") {
-      weights <- c(0.5, 0.99, 0.999, 0.999999)
-      obj_fun <- diversity_objective_
-    } else if (objective == "dispersion") {
-      weights <- c(0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.1)
-      obj_fun <- dispersion_objective_
-    }
-    partitions <- as.matrix(bicriterion_anticlustering(x, K, repetitions, weights))
-    # get best partition wrt dispersion / diversity
-    best_obj <- which.max(apply(partitions, 1, obj_fun, convert_to_distances(x)))
-    return(partitions[best_obj, ])
+  # Some special cases must be considered now:
+  # (a) Is a user defined objective function passed? 
+  # (b) Do we need "repeated" anticlustering (i.e., calling the standard exchange method multiple times via
+  #     local maximum search and/or multiple initializations)
+  # (c) Is the repeated optimization implemented in C, or do we just call the exchange method repeatedly from R?
+  
+  is_objective_user_defined <- inherits(objective, "function")
+  repeated_anticlustering_needed <- method == "local-maximum" || (method == "exchange" && argument_exists(repetitions))
+  repeated_anticlustering_has_c_implementation <- !inherits(objective, "function") && objective %in% c("diversity", "average-diversity")
+  
+  # Diversity anticlustering has C implementation for repeated anticlustering, consider this special case:
+  if (repeated_anticlustering_needed && !repeated_anticlustering_has_c_implementation) { 
+    repetitions <- ifelse(!argument_exists(repetitions), 1, repetitions)
+      return(repeat_anticlustering(x, K, objective, categories, method, repetitions))
   }
-
-  if (inherits(objective, "function")) {
-    # most generic exchange method, deals with any objective function
+  # Most generic exchange method for user defined objectives:
+  if (is_objective_user_defined) {
     return(exchange_method(x, K, objective, categories))
   }
 
-  # Redirect to specialized fast exchange methods for diversity and 
-  # variance objectives
-  c_anticlustering(x, K, categories, objective)
+  # Redirect to specialized fast exchange methods for diversity, dispersion, kmeans/kplus objectives:
+  local_maximum <- ifelse(method == "local-maximum", TRUE, FALSE)
+  if (argument_exists(repetitions) && repetitions > 1) { # this can only be the case for diversity objective, based on the logic above
+    repetitions <- t(simplify2array(get_multiple_initial_clusters(N, K, categories, repetitions))) - 1
+  } else if (argument_exists(repetitions) && repetitions == 1) {
+    repetitions <- NULL
+  }
+  c_anticlustering(x, K, categories, objective, local_maximum = local_maximum, init_partitions = repetitions)
 }
 
 # Function that processes input and returns the data set that the

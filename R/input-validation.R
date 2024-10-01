@@ -7,7 +7,61 @@
 #' @noRd
 input_validation_anticlustering <- function(x, K, objective, method,
                                           preclustering, categories,
-                                          repetitions, standardize = FALSE) {
+                                          repetitions, standardize = FALSE, cannot_link = NULL,
+                                          must_link = NULL) {
+  
+  ## Validate feature input
+  validate_data_matrix(x)
+  x <- as.matrix(x)
+  N <- nrow(x)
+  
+  if (argument_exists(must_link)) {
+    validate_input(must_link, "must_link", not_function = TRUE, len = N)
+    must_link <- as.matrix(must_link)
+
+    validate_input(objective, "objective", input_set = c("diversity"), not_na = TRUE, len = 1) 
+    validate_input(method, "method", input_set = c("local-maximum", "exchange"), not_na = TRUE, len = 1) 
+    
+    if (ncol(must_link) != 1) {
+      stop("Argument must_link must be a vector.")
+    }
+    if (objective %in% c("dispersion", "kplus", "variance")) {
+      stop("Currently, must-link constraints only work with objective = 'diversity'.")
+    }
+    if (argument_exists(categories)) {
+      stop("\nCombining the `categories` argument together with must-link constraints \n",
+           "is currently not supported; use the categorical variables as part of the first argument\n",
+           "`x` instead (see the vignette on categorical variables).")
+    }
+    if (isTRUE(preclustering)) {
+      stop("It is not possible to combine preclustering with must-link constraints.")
+    }
+    if (argument_exists(cannot_link)) {
+      stop("Currently, it is not possible to use both cannot-link and must-link constraints.")
+    }
+  }
+  
+  if (argument_exists(cannot_link)) {
+    cannot_link <- as.matrix(cannot_link)
+    validate_input(cannot_link, "cannot_link", 
+                   objmode = "numeric", must_be_integer = TRUE, 
+                   greater_than = 0, smaller_than = NROW(x)+1, 
+                   not_na = TRUE, not_function = TRUE)
+    if (ncol(cannot_link) != 2) {
+      stop("Argument cannot_link must have 2 columns.")
+    }
+    if (objective == "dispersion") {
+      stop("objective = dispersion does not work with cannot_link constraints.")
+    }
+    if (argument_exists(categories)) {
+      stop("\nCombining the `categories` argument together with cannot-link constraints \n",
+           "is currently not supported; use the categorical variables as part of the first argument\n",
+           "`x` instead (see the vignette on categorical variables).")
+    }
+    if (isTRUE(preclustering)) {
+      stop("It is not possible to combine preclustering with cannot-link constraints.")
+    }
+  }
   
   validate_input(standardize, "standardize", objmode = "logical", len = 1,
                  input_set = c(TRUE, FALSE), not_na = TRUE, not_function = TRUE)
@@ -21,11 +75,6 @@ input_validation_anticlustering <- function(x, K, objective, method,
   ## Merge categories variable so that `length` can be applied:
   categories <- merge_into_one_variable(categories)
   
-  ## Validate feature input
-  validate_data_matrix(x)
-  x <- as.matrix(x)
-  N <- nrow(x)
-
   validate_input(preclustering, "preclustering", len = 1,
                  input_set = c(TRUE, FALSE), not_na = TRUE, not_function = TRUE)
 
@@ -41,9 +90,6 @@ input_validation_anticlustering <- function(x, K, objective, method,
     }
     if (preclustering == TRUE) {
       stop("It is not possible to use the algorithm by Brusco et al. with preclustering restrictions.")
-    }
-    if (!objective %in% c("dispersion", "diversity")) {
-      stop("The algorithm by Brusco et al. can only be used to optimize diversity or dispersion.")
     }
   }
   
@@ -99,6 +145,7 @@ input_validation_anticlustering <- function(x, K, objective, method,
     validate_input(objective, "objective", input_set = c(
       "distance", 
       "diversity", 
+      "average-diversity", 
       "dispersion",
       "variance", 
       "kplus"
@@ -171,6 +218,13 @@ validate_input <- function(obj, argument_name, len = NULL, greater_than = NULL,
     }
   }
 
+  ## - Check mode of input
+  if (argument_exists(objmode)) {
+    if (mode(obj) != objmode) {
+      stop(argument_name, " must be ", objmode, ", but is ", mode(obj))
+    }
+  }
+  
   ## - Check if input has to be greater than some value
   if (argument_exists(greater_than)) {
     if (any(obj <= greater_than)) {
@@ -208,13 +262,6 @@ validate_input <- function(obj, argument_name, len = NULL, greater_than = NULL,
     if (!obj %in% input_set) {
       stop(argument_name, " can either be set to '",
            paste(input_set, collapse = "' or '"), "'")
-    }
-  }
-
-  ## - Check mode of input
-  if (argument_exists(objmode)) {
-    if (mode(obj) != objmode) {
-      stop(argument_name, " must be ", objmode, ", but is ", mode(obj))
     }
   }
 
@@ -355,7 +402,8 @@ input_validation_matching <- function(
 check_if_solver_is_available <- function() {
   glpk_available <- requireNamespace("Rglpk", quietly = TRUE)
   symphony_available <- requireNamespace("Rsymphony", quietly = TRUE)
-  no_solver_available <- !glpk_available && !symphony_available
+  lpSolve_available <- requireNamespace("lpSolve", quietly = TRUE)
+  no_solver_available <- !glpk_available && !symphony_available && !lpSolve_available
   
   if (no_solver_available) {
     stop("\n\nAn exact method was requested, but no ILP solver is ",
@@ -366,7 +414,7 @@ check_if_solver_is_available <- function() {
          "- 'sudo apt install libglpk-dev' on Ubuntu ",
          "\n\nThen, install the Rglpk package via ",
          "`install.packages('Rglpk')`.\n \n Another possibilty is to install the R package 'Rsymphony' ",
-         "and the SYMPHONY ILP solver (https://github.com/coin-or/SYMPHONY).")
+         "and the SYMPHONY ILP solver (https://github.com/coin-or/SYMPHONY), or the R package `lpSolve`.")
   }
   return(invisible(NULL))
 }

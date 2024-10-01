@@ -32,6 +32,12 @@ void kmeans_anticlustering(
         int *mem_error
 );
 
+void distance_anticlustering_(int n, int k, int c, double *DISTANCES[n], struct element POINTS[n], 
+                              size_t *CATEGORY_HEADS[c],
+                              int *frequencies, int *clusters, 
+                              int *USE_CATS, int *C, int *CAT_frequencies,
+                              int *categories, int *local_maximum, double *OBJ_RESULT, int *mem_error);
+
 size_t number_of_categories(int *USE_CATS, int *C);
 int get_cat_frequencies(int *USE_CATS, int *CAT_frequencies, size_t n);
 
@@ -240,3 +246,6 @@ void init_overall_centroid(size_t m, size_t n, double OVERALL_CENTROID[m], doubl
 void fast_swap(int *clusters, size_t i, size_t j);
 size_t one_dim_index(size_t i, size_t j, size_t n);
 double weighted_array_sum(size_t k, int* frequencies, double ARRAY[k]);
+
+// for average diversity implementation:
+double weighted_array_sum2(size_t k, int* frequencies, double ARRAY[k]);

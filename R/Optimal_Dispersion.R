@@ -9,12 +9,22 @@
 #'     \code{\link{dist}} or \code{\link{as.dist}}) or a \code{matrix}
 #'     where the entries of the upper and lower triangular matrix
 #'     represent pairwise dissimilarities.
-#' @param K The number of groups or a vector describing the size of each group.
-#' @param solver Optional argument; if passed, has to be either "glpk" or
-#'   "symphony". See details.
-#' @param max_dispersion_considered Optional argument used for early stopping. If the dispersion found
-#'   is equal to or exceeds this value, a solution having the previous best dispersion 
-#'   is returned.
+#' @param K The number of groups or a vector describing the size of
+#'     each group.
+#' @param solver Optional argument; currently supports "lpSolve", 
+#'     "glpk", and "symphony". See \code{\link{optimal_anticlustering}}.
+#' @param max_dispersion_considered Optional argument used for early
+#'     stopping. If the dispersion found is equal to or exceeds this
+#'     value, a solution having the previous best dispersion is
+#'     returned.
+#' @param min_dispersion_considered Optional argument used for
+#'     speeding up the algorithm computation.  If passed, the
+#'     dispersion is optimized starting from this value instead the
+#'     global minimum distance.
+#' @param npartitions The number of groupings that are returned, each
+#'     having an optimal dispersion value (defaults to 1).
+#' @param time_limit Time limit in seconds, given to the solver.
+#'    Default is there is no time limit.
 #'
 #' @export
 #' 
@@ -31,56 +41,53 @@
 #'
 #'   The dispersion is the minimum distance between two elements
 #'   within the same group. This function implements an optimal method
-#'   to maximize the dispersion. If the data input \code{x} is a feature
-#'   matrix and not a dissimilarity matrix, the pairwise Euclidean
-#'   distance is used. It uses the algorithm presented in Max
-#'   Diekhoff's Bachelor thesis at the Computer Science Department at
-#'   the Heinrich Heine University Düsseldorf.
+#'   to maximize the dispersion. If the data input \code{x} is a
+#'   feature matrix and not a dissimilarity matrix, the pairwise
+#'   Euclidean distance is used. It uses the algorithm presented in
+#'   Max Diekhoff's Bachelor thesis at the Computer Science Department
+#'   at Heinrich Heine University Düsseldorf.
 #'
 #'   To find out which items are not allowed to be grouped in the same
 #'   cluster for maximum dispersion, the algorithm sequentially builds
 #'   instances of a graph coloring problem, using an integer linear
 #'   programming (ILP) representation (also see Fernandez et al.,
 #'   2013).  It is possible to specify the ILP solver via the argument
-#'   \code{solver}. This function either requires the R package
-#'   \code{Rglpk} and the GNU linear programming kit
-#'   (<http://www.gnu.org/software/glpk/>) or the R package
-#'   \code{Rsymphony} and the COIN-OR SYMPHONY solver libraries
-#'   (<https://github.com/coin-or/SYMPHONY>). If the argument
-#'   \code{solver} is not specified, the function will try to find the
-#'   GLPK or SYMPHONY solver by itself. It prioritizes using GLPK if
-#'   both are available. However, the GNU linear programming kit (\code{solver =
-#'   "glpk"}) seems to be considerably slower for K >= 3 than the
-#'   SYMPHPONY solver (\code{solver = "symphony"}). So, it is recommended to manually
-#'   change the default behaviour.
-#' 
-#'   Optimally solving the maximum dispersion problem is NP-hard for K
-#'   > 2 and therefore computationally infeasible for larger data
-#'   sets. For K = 3 and K = 4, it seems that this approach scales up to several 100 elements, 
-#'   or even > 1000 for K = 3 (at least when using the Symphony solver). 
-#'   For larger data sets, use the heuristic approaches in \code{\link{anticlustering}} or
-#'   \code{\link{bicriterion_anticlustering}}. However, note that for K = 2, 
-#'   the optimal approach is usually much faster than the heuristics.
+#'   \code{solver} (See \code{\link{optimal_anticlustering}} for more
+#'   information on this argument). Optimally solving the maximum
+#'   dispersion problem is NP-hard for K > 2 and therefore
+#'   computationally infeasible for larger data sets. For K = 3 and K
+#'   = 4, it seems that this approach scales up to several 100
+#'   elements, or even > 1000 for K = 3 (at least when using the
+#'   Symphony solver).  For larger data sets, use the heuristic
+#'   approaches in \code{\link{anticlustering}} or
+#'   \code{\link{bicriterion_anticlustering}}. However, note that for
+#'   K = 2, the optimal approach is usually much faster than the
+#'   heuristics.
 #'   
-#'   In the output, the element \code{edges} defines which elements must be in separate 
-#'   clusters in order to achieve maximum dispersion. All elements not listed here
-#'   can be changed arbitrarily between clusters without reducing the dispersion.
-#'   If the maximum possible dispersion corresponds to the minimum dispersion
-#'   in the data set, the output elements \code{edges} and \code{groups} are set to
-#'   \code{NULL} because all possible groupings have the same value of dispersion.
-#'   In this case the output element \code{dispersions_considered} has length 1.
+#'   In the output, the element \code{edges} defines which elements
+#'   must be in separate clusters in order to achieve maximum
+#'   dispersion. All elements not listed here can be changed
+#'   arbitrarily between clusters without reducing the dispersion.  If
+#'   the maximum possible dispersion corresponds to the minimum
+#'   dispersion in the data set, the output elements \code{edges} and
+#'   \code{groups} are set to \code{NULL} because all possible
+#'   groupings have the same value of dispersion.  In this case the
+#'   output element \code{dispersions_considered} has length 1.
+#'   
+#'   If a \code{time_limit} is set and the function cannot find in the optimal
+#'   dispersion in the given time, it will throw an error.
 #'   
 #'
-#' @note If the SYMPHONY solver is used, an unfortunate
-#' "message" is printed to the console when this function terminates: 
+#' @note If the SYMPHONY solver is used, an unfortunate "message" is
+#'     printed to the console when this function terminates:
 #' 
 #' sym_get_col_solution(): No solution has been stored!
 #' 
 #' This message is no reason to worry and instead is a direct result
 #' of the algorithm finding the optimal value for the dispersion.
-#' Unfortunately, this message is generated in the C code underlying the 
-#' SYMPHONY library (via the printing function \code{printf}), which cannot be
-#' prevented in R.
+#' Unfortunately, this message is generated in the C code underlying
+#' the SYMPHONY library (via the printing function \code{printf}),
+#' which cannot be prevented in R.
 #'
 #' @author
 #' 
@@ -149,13 +156,21 @@
 #' optimal_dispersion(unsolvable, K = c(2, 4)) # group sizes, not number of groups
 #' 
 
-optimal_dispersion <- function(x, K, solver = NULL, max_dispersion_considered = NULL) {
+optimal_dispersion <- function(
+    x, K, 
+    solver = NULL, 
+    max_dispersion_considered = NULL, 
+    min_dispersion_considered = NULL,
+    npartitions = 1,
+    time_limit = NULL) {
   
-  validate_input_optimal_anticlustering(x, K, "dispersion", solver)
+  validate_input_optimal_anticlustering(x, K, "dispersion", solver, time_limit)
   
   if (!argument_exists(solver)) {
     solver <- find_ilp_solver()
   }
+
+  validate_input(npartitions, "npartitions", objmode = "numeric", must_be_integer = TRUE, not_na = TRUE, not_function = TRUE, greater_than = 0)
 
   if (is.null(max_dispersion_considered)) {
     max_dispersion_considered <- Inf
@@ -163,10 +178,17 @@ optimal_dispersion <- function(x, K, solver = NULL, max_dispersion_considered = 
     validate_input(max_dispersion_considered, "max_dispersion_considered", 
                    objmode = "numeric", len = 1, not_na = TRUE, not_function = TRUE)
   }
-
+  
   distances <- convert_to_distances(x)
   diag(distances) <- Inf
   N <- nrow(distances)
+  
+  if (argument_exists(min_dispersion_considered)) {
+    validate_input(min_dispersion_considered, "min_dispersion_considered", 
+                   objmode = "numeric", len = 1, not_na = TRUE, not_function = TRUE)
+    sorted_unique_distances <- sort(unique(distances))
+    dispersion <- sorted_unique_distances[which(sorted_unique_distances == min_dispersion_considered)[1] - 1]
+  }
   
   # `target_groups` is primarily needed for unequal sized groups
   target_groups <- sort(table(initialize_clusters(N, K, NULL)), decreasing = TRUE)
@@ -179,22 +201,29 @@ optimal_dispersion <- function(x, K, solver = NULL, max_dispersion_considered = 
   all_nns_last <- NULL
   all_nns_reordered_last <- NULL
   dispersions_considered <- NULL
+  time_limit_exceeded <- FALSE
   counter <- 1
   MINIMUM_DISTANCE <- min(distances)
+  start <- Sys.time()
   while (!dispersion_found) {
-    dispersion <- min(distances)
+    if (is.null(min_dispersion_considered) || counter > 1) {
+      dispersion <- min(distances)
+    }
     if (dispersion >= max_dispersion_considered) {
       break
     }
-    ids_of_nearest_neighbours <- which(dispersion == distances, arr.ind = TRUE)
+    ids_of_nearest_neighbours <- which(distances <= dispersion, arr.ind = TRUE)
     all_nns <- rbind(all_nns, remove_redundant_edges(ids_of_nearest_neighbours))
     # Reorder edge labels so that they start from 1 to C, where C is the number
     # of relevant edges (Better for creating K-coloring ILP).
     all_nns_reordered <- reorder_edges(all_nns)
     # Construct graph from all previous edges (that had low distances)
     ilp <- k_coloring_ilp(all_nns_reordered, N, K, target_groups)
-    solution <- solve_ilp_graph_colouring(ilp, solver)
-    dispersion_found <- solution$status != 0 
+    solution <- solve_ilp(ilp, objective = "min", solver = solver, time_limit = time_limit)
+    dispersion_found <- solution$status != 0
+    if (argument_exists(time_limit) && (as.numeric(difftime(Sys.time(), start, units = "s")) > time_limit)) {
+      stop("Could not find the optimal dispersion in the given time limit.")
+    }
     if (!dispersion_found){
       last_solution <- solution
       all_nns_last <- all_nns
@@ -216,7 +245,9 @@ optimal_dispersion <- function(x, K, solver = NULL, max_dispersion_considered = 
     )
   }
   # Calculate anticlusters from the last iteration with a K-coloring
-  groups <- groups_from_k_coloring_mapping(
+  groups <- t(sapply(
+    1:npartitions,
+    repeat_grouping,
     result_value = last_solution$obj,
     result_x = last_solution$x,
     all_nns = all_nns_last,
@@ -224,12 +255,29 @@ optimal_dispersion <- function(x, K, solver = NULL, max_dispersion_considered = 
     N = N,
     K = K, 
     target_groups = target_groups
+  ))
+  if (npartitions == 1) {
+    groups <- c(groups)
+  } else {
+    if (any(duplicated(groups))) { # warn if there are duplicate partitions
+      warning("Some of the returned partitions are duplicates (i.e. argument 'npartitions' was > 1).")
+    }
+  }
+  
+  group_fixated <- graph_coloring_to_group_vector(
+    all_nns_reordered = all_nns_reordered_last, 
+    result_x = last_solution$x, 
+    K = K, 
+    all_nns = all_nns_last, 
+    N = N
   )
+  
   return(
     list(
       dispersion = dispersion, 
       groups = groups,
-      edges = unname(all_nns), # rownames can be quite ugly here
+      groups_fixated = group_fixated,
+      edges = unname(all_nns_last), # rownames can be quite ugly here
       dispersions_considered = c(dispersions_considered, dispersion)
     )
   )
@@ -341,39 +389,43 @@ constraint_names <- function(nr_of_nodes, K) {
   return(c(w_l, x_j_i$variables))
 }
 
-# allow for different solvers (Symphony, GLPK)
-
-solve_ilp_graph_colouring <- function(ilp, solver) {
-  
-  # solver_function = Rglpk::Rglpk_solve_LP OR Rsymphony::Rsymphony_solve_LP
-  # name_opt (refers to the output of the function) = "objval" (GLPK) OR "optimum" (Symphony)
-  # rest of the input is the same between the solver functions, which is nice
-  solver_function <- ifelse(solver == "symphony", Rsymphony::Rsymphony_solve_LP, Rglpk::Rglpk_solve_LP)
-  name_opt <- ifelse(solver == "symphony", "objval", "optimum")
-  
-  ilp_solution <- solver_function(
-    obj = ilp$obj_function,
-    mat = ilp$constraints,
-    dir = ilp$equalities,
-    rhs = ilp$rhs,
-    types = "B",
-    max = FALSE
-  )
-
-  # return the optimal value and the variable assignment
-  ret_list <- list() 
-  ret_list$x <- ilp_solution$solution
-  ret_list$obj <- ilp_solution[[name_opt]]
-  ret_list$status <- ilp_solution$status
-  ## name the decision variables
-  names(ret_list$x) <- colnames(ilp$constraints)
-  ret_list
+# dummy function for calling groups_from_k_coloring_mapping() several times using sapply
+repeat_grouping <- function(X, result_value, result_x, all_nns, all_nns_reordered, N, K, target_groups) {
+  groups_from_k_coloring_mapping(result_value, result_x, all_nns, all_nns_reordered, N, K, target_groups)
 }
-
 
 # Restore a grouping from the solved ilp
 groups_from_k_coloring_mapping <- function(result_value, result_x, all_nns, all_nns_reordered, N, K, target_groups) {
-  
+  groups_new <- graph_coloring_to_group_vector(all_nns_reordered, result_x, K, all_nns, N)
+  # now we have the original indices, assign remaining elements randomly to groups
+  # how many are not yet assigned
+  add_unassigned_elements(target_groups, groups_new, N, K)
+}
+
+# After initial assignment, fill the rest randomly
+add_unassigned_elements <- function(target_groups, init, N, K) {
+  if (sum(!is.na(init)) == N) {
+    return(init)  # groups are already full, no unassigned elements!
+  }
+  K <- length(target_groups)
+  table_assigned <- table(init)
+  # assign elements that have no group (unfortunately, this "simple" task is quite difficult in general)
+  if (length(table_assigned) != length(target_groups)) {
+    table_assigned <- data.frame(K = 1:K, size = 0)
+    df <- as.data.frame(table(init))
+    together <- merge(table_assigned, df, by.x = "K", by.y = "init", all = TRUE)
+    table_assigned <- ifelse(is.na(together$Freq), 0, together$Freq)
+  }
+  freq_not_assigned <- target_groups - table_assigned
+  init[is.na(init)] <- sample_(rep(1:K, freq_not_assigned))
+  stopifnot(all(table(init) == target_groups))
+  # now sort labels by group size (so that each time this function is called, we get the same output of table())
+  new_labels <- order(table(init), decreasing = TRUE)
+  as.numeric(as.character(factor(init, levels = 1:K, labels = new_labels)))
+}
+
+
+graph_coloring_to_group_vector <- function(all_nns_reordered, result_x, K, all_nns, N) {
   # Retrieve assigned colors from the x_v,i ILP variables
   mapping <- rep(NA, max(all_nns_reordered))
   matrix <- matrix(result_x[-(1:K)], nrow=K)
@@ -391,20 +443,12 @@ groups_from_k_coloring_mapping <- function(result_value, result_x, all_nns, all_
   # create vector with groupings
   groups_new <- rep(NA, N)
   groups_new[df$id] <- df$mapping
-  # now we have the original indices, assign remaining elements randomly to groups
-  # how many are not yet assigned
-  freq_not_assigned <- target_groups - table(groups_new)
-  assigned <- table(groups_new)
-  # Randomly fill other groups that are not yet full
-  if (sum(assigned) < N) {
-    groups_new[is.na(groups_new)] <- sample_(rep(1:K, freq_not_assigned))
-  }
   groups_new
 }
 
 # Function that takes an edge list with any integer indices and remaps
 # these indices to 1, ..., C (where C is the number of nodes) while 
-# preserving the original order of indices. This is important for igraph
+# preserving the original order of indices.
 reorder_edges <- function(edgelist) {
   dims <- dim(edgelist)
   edgelist <- as.numeric(as.factor(edgelist))
@@ -415,4 +459,25 @@ reorder_edges <- function(edgelist) {
 remove_redundant_edges <- function(df) {
   df <- t(apply(df, 1, sort))
   df[!duplicated(df), ]
+}
+
+# Function to solve optimal cannot_link constraints, used for the argument 
+# cannot_link in anticlustering()
+optimal_cannot_link <- function(N, K, target_groups, cannot_link, repetitions) {
+  repetitions <- ifelse(is.null(repetitions), 1, repetitions)
+  all_nns_reordered <- reorder_edges(cannot_link)
+  ilp <- k_coloring_ilp(all_nns_reordered, N, K, target_groups)
+  solution <- solve_ilp(
+    ilp, solver = ifelse(requireNamespace("Rsymphony", quietly = TRUE), "symphony", find_ilp_solver())
+  )
+  if (solution$status != 0) {
+    stop("The cannot-link constraints cannot be fulfilled.")
+  }
+  groups_fixated <- graph_coloring_to_group_vector(all_nns_reordered, solution$x, K, cannot_link, N)
+  if (repetitions > 1) {
+    groups <- t(replicate(repetitions, add_unassigned_elements(target_groups, groups_fixated, N, K)))
+  } else {
+    groups <- add_unassigned_elements(target_groups, groups_fixated, N, K)
+  }
+  groups
 }

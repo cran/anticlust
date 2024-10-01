@@ -263,15 +263,12 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <li>If speed is not an issue (it usually is not), use <code>method = &quot;local-maximum&quot;</code> instead of the default <code>method = &quot;exchange&quot;</code>. <strong>It is unambiguously better.</strong></li>
 <li>If speed is not an issue (it usually is not), use several <code>repetitions</code>.</li>
 <li>Use <code>standardize = TRUE</code> instead of the default <code>standardize = FALSE</code>.<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a></li>
-<li>Do not use the default <code>objective = &quot;diversity&quot;</code> when the group sizes are not equal (preferably, use <code>objective = &quot;kplus&quot;</code>).</li>
+<li>Do not use the default <code>objective = &quot;diversity&quot;</code> when the group sizes are not equal (preferably, use <code>objective = &quot;kplus&quot;</code> or <code>objective = &quot;average-diversity&quot;</code>).</li>
 <li>If you only care about similarity in mean values, use <code>objective = &quot;variance&quot;</code>.</li>
 <li><strong>You should (probably) not only care about similarity in mean values</strong>: prefer <code>objective = &quot;kplus&quot;</code> over <code>objective = &quot;variance&quot;</code> (or check out the function <code>kplus_anticlustering()</code>).</li>
 <li>If you (only) care about similarity in means and standard deviations, use <code>objective = &quot;kplus&quot;</code> instead of the default <code>objective = &quot;diversity&quot;</code>.</li>
 <li>With k-plus anticlustering, <strong>always</strong> use <code>standardize = TRUE</code>.</li>
 <li>If you want to apply anticlustering on a large data set, read the vignette “Speeding up Anticlustering”.</li>
-<li>If you have a very large<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a> data set, do not use the default <code>objective = &quot;diversity&quot;</code> because computing the distance matrix may overwhelm your computer. Instead use <code>objective = &quot;variance&quot;</code> or <code>objective = &quot;kplus&quot;</code>.</li>
-<li>For the optimal anticlustering algorithms (i.e., <code>method = &quot;ilp&quot;</code>): Install the SYMPHONY solver instead of the GLPK solver.</li>
-<li>The <code>objective = &quot;dispersion&quot;</code> is the only objective where you should first try out the optimal method instead of a heuristic, i.e., use <code>method = &quot;ilp&quot;</code> or the function <code>optimal_dispersion()</code>.<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a></li>
 </ul>
 <div id="references" class="section level2">
 <h2>References</h2>
@@ -283,8 +280,6 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <ol>
 <li id="fn1"><p>Well, actually your R session can break if you use an optimal method (<code>method = &quot;ilp&quot;</code>) with a data set that is too large.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
 <li id="fn2"><p>You might ask why <code>standardize = TRUE</code> is not the default. Actually, there are two reasons. First, the argument was not always available in <code>anticlust</code> and changing the default behaviour of a function when releasing a new version is oftentimes undesirable. Second, it seems like a big decision to me to just change users’ data by default (which is done when standardizing the data). In doubt, just compare the results of using <code>standardize = TRUE</code> and <code>standardize = FALSE</code> and decide for yourself which you like best. Standardization may not be the best choice in all settings.<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
-<li id="fn3"><p>What is considered very large may depend on the specifications of your computer. I used to have problems computing a distance matrix for <span class="math inline">\(N &gt; 20000\)</span>.<a href="#fnref3" class="footnote-back">↩︎</a></p></li>
-<li id="fn4"><p>The maximum dispersion problem can be solved optimally for rather large data sets, especially for <span class="math inline">\(K = 2\)</span>. For <span class="math inline">\(K = 3\)</span> and <span class="math inline">\(K = 4\)</span>, several 100 elements can usually be processed, especially when installing the SYMPHONY solver.<a href="#fnref4" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
 

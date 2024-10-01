@@ -9,7 +9,7 @@
 #' 
 #' @noRd
 #' 
-c_anticlustering <- function(data, K, categories = NULL, objective, exchange_partners = NULL) {
+c_anticlustering <- function(data, K, categories = NULL, objective, exchange_partners = NULL, local_maximum = FALSE, init_partitions = NULL) {
   
   clusters <- initialize_clusters(NROW(data), K, categories)
 
@@ -23,12 +23,20 @@ c_anticlustering <- function(data, K, categories = NULL, objective, exchange_par
   frequencies <- table(clusters)
   N <- NROW(data)
   M <- NCOL(data)
-  
-  # Each cluster must occur more than once
-  if (any(frequencies <= 1)) {
-    stop("No clusters with only one member allowed.")
+
+  # Case: initial partitions may be passed as a matrix (rows = partitions; cols = elements)
+  if (!argument_exists(init_partitions)) {
+    R <- 1
+    use_init_partitions <- 0
+    init_partitions <- 0
+  } else {
+    R <- nrow(init_partitions)
+    if (min(init_partitions) > 0) {
+      stop("You forgot 0 indexing in C again.")
+    }
+    use_init_partitions <- 1
   }
-  
+
   if (argument_exists(categories)) {
     USE_CATEGORIES <- TRUE
     categories <- merge_into_one_variable(categories) - 1
@@ -58,17 +66,26 @@ c_anticlustering <- function(data, K, categories = NULL, objective, exchange_par
       mem_error = as.integer(0),
       PACKAGE = "anticlust"
     )
-  } else if (objective == "diversity" || objective == "distance") {
+  } else if (objective %in% c("diversity", "distance", "average-diversity")) {
+    if (objective != "average-diversity") {
+      frequencies <- rep_len(1, K)
+    }
+
     results <- .C(
       "distance_anticlustering", 
       as.double(convert_to_distances(data)),
       as.integer(N),
       as.integer(K),
+      as.integer(frequencies),
       clusters = as.integer(clusters),
       as.integer(USE_CATEGORIES),
       as.integer(N_CATS),
       as.integer(CAT_frequencies),
       as.integer(categories),
+      as.integer(local_maximum),
+      as.integer(R),
+      as.integer(use_init_partitions),
+      as.integer(t(init_partitions)),
       mem_error = as.integer(0),
       PACKAGE = "anticlust"
     )
