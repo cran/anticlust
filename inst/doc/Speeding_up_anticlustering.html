@@ -373,23 +373,23 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>K &lt;-<span class="st"> </span><span class="dv">3</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a><span class="kw">system.time</span>(<span class="kw">anticlustering</span>(iris[, <span class="dv">-5</span>], <span class="dt">K =</span> K, <span class="dt">method =</span> <span class="st">&quot;exchange&quot;</span>))</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a><span class="co">#&gt;        User      System verstrichen </span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a><span class="co">#&gt;       0.006       0.000       0.006</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a><span class="co">#&gt;       0.007       0.000       0.007</span></span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a><span class="kw">system.time</span>(<span class="kw">anticlustering</span>(iris[, <span class="dv">-5</span>], <span class="dt">K =</span> K, <span class="dt">method =</span> <span class="st">&quot;local-maximum&quot;</span>))</span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a><span class="co">#&gt;        User      System verstrichen </span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true"></a><span class="co">#&gt;        0.03        0.00        0.03</span></span></code></pre></div>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true"></a><span class="co">#&gt;       0.029       0.000       0.030</span></span></code></pre></div>
 <p>Depending on how many iterations are needed, the default exchange method can be much faster than the local maximum method. Generally I would recommend to use <code>method = &quot;local-maximum&quot;</code> for better results, but if speed is an issue, stick with the default.</p>
 <p>To slow down even more: The exchange process may be restarted several times, each time using a different initial grouping of the elements. This is accomplished when specifying the <code>repetitions</code> argument, which defaults to 1 repetition of the exchange / local maximum algorithm. Thus, for better results, we may increase the number of repetitions:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>K &lt;-<span class="st"> </span><span class="dv">3</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a><span class="kw">system.time</span>(<span class="kw">anticlustering</span>(iris[, <span class="dv">-5</span>], <span class="dt">K =</span> K, <span class="dt">method =</span> <span class="st">&quot;exchange&quot;</span>))</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a><span class="co">#&gt;        User      System verstrichen </span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a><span class="co">#&gt;       0.007       0.000       0.007</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a><span class="co">#&gt;       0.006       0.000       0.006</span></span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true"></a><span class="kw">system.time</span>(<span class="kw">anticlustering</span>(iris[, <span class="dv">-5</span>], <span class="dt">K =</span> K, <span class="dt">method =</span> <span class="st">&quot;local-maximum&quot;</span>))</span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true"></a><span class="co">#&gt;        User      System verstrichen </span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true"></a><span class="co">#&gt;       0.022       0.000       0.021</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true"></a><span class="co">#&gt;        0.02        0.00        0.02</span></span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true"></a><span class="kw">system.time</span>(<span class="kw">anticlustering</span>(iris[, <span class="dv">-5</span>], <span class="dt">K =</span> K, <span class="dt">method =</span> <span class="st">&quot;local-maximum&quot;</span>, <span class="dt">repetitions =</span> <span class="dv">10</span>))</span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true"></a><span class="co">#&gt;        User      System verstrichen </span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true"></a><span class="co">#&gt;       0.233       0.000       0.233</span></span></code></pre></div>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true"></a><span class="co">#&gt;       0.213       0.000       0.213</span></span></code></pre></div>
 <p>In this case, sticking with the default leads to run times that are much much faster. Still, if your data set is not too large, using several repetitions may be useful (but you can judge yourself via the results). The good news is that fewer exchanges may be enough in large data sets: anticlustering generally becomes easier with more data.</p>
 </div>
 <div id="getting-fast-using-fewer-exchange-partners" class="section level2">
@@ -404,12 +404,12 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a>start &lt;-<span class="st"> </span><span class="kw">Sys.time</span>()</span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a>groups1 &lt;-<span class="st"> </span><span class="kw">fast_anticlustering</span>(data, <span class="dt">K =</span> <span class="dv">2</span>)  <span class="co"># default uses all exchange partners</span></span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a><span class="kw">Sys.time</span>() <span class="op">-</span><span class="st"> </span>start </span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true"></a><span class="co">#&gt; Time difference of 2.284889 secs</span></span></code></pre></div>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true"></a><span class="co">#&gt; Time difference of 2.277773 secs</span></span></code></pre></div>
 <p>The default behaviour in <code>fast_anticlustering()</code> is to use all exchange partners. Using fewer exchange partners can lead to much faster run time:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a>start &lt;-<span class="st"> </span><span class="kw">Sys.time</span>()</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a>groups2 &lt;-<span class="st"> </span><span class="kw">fast_anticlustering</span>(data, <span class="dt">K =</span> <span class="dv">2</span>, <span class="dt">k_neighbours =</span> <span class="dv">20</span>)</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a><span class="kw">Sys.time</span>() <span class="op">-</span><span class="st"> </span>start </span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a><span class="co">#&gt; Time difference of 0.2166274 secs</span></span></code></pre></div>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a><span class="co">#&gt; Time difference of 0.2124968 secs</span></span></code></pre></div>
 <p>Was there a cost to this speedup?</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a><span class="kw">variance_objective</span>(data, groups1)</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a><span class="co">#&gt; [1] 9925.961</span></span>
@@ -428,10 +428,10 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true"></a>data &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">rnorm</span>(N<span class="op">*</span>M), <span class="dt">ncol =</span> M)</span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true"></a><span class="kw">system.time</span>(<span class="kw">anticlustering</span>(data, <span class="dt">K =</span> K))</span>
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true"></a><span class="co">#&gt;        User      System verstrichen </span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true"></a><span class="co">#&gt;       4.351       0.000       4.352</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true"></a><span class="co">#&gt;       4.387       0.000       4.388</span></span>
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true"></a><span class="kw">system.time</span>(<span class="kw">anticlustering</span>(data, <span class="dt">K =</span> K, <span class="dt">preclustering =</span> <span class="ot">TRUE</span>))</span>
 <span id="cb7-9"><a href="#cb7-9" aria-hidden="true"></a><span class="co">#&gt;        User      System verstrichen </span></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true"></a><span class="co">#&gt;       0.093       0.000       0.093</span></span></code></pre></div>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true"></a><span class="co">#&gt;       0.093       0.000       0.092</span></span></code></pre></div>
 <p>Still, the preclustering approach is probably not necessarily recommended to speed up anticlustering for very large data sets; it is useful if you are interested in enforcing the preclustering restrictions in the groupings.</p>
 </div>
 <div id="secret-hack" class="section level3">
@@ -468,10 +468,10 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <p>Now let’s call anticlustering using the exchange partners we just defined:</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a><span class="kw">system.time</span>(<span class="kw">anticlustering</span>(iris[, <span class="dv">-5</span>], <span class="dt">K =</span> initial_clusters))</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true"></a><span class="co">#&gt;        User      System verstrichen </span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true"></a><span class="co">#&gt;       0.008       0.000       0.008</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true"></a><span class="co">#&gt;       0.006       0.000       0.006</span></span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true"></a><span class="kw">system.time</span>(<span class="kw">anticlustering</span>(iris[, <span class="dv">-5</span>], <span class="dt">K =</span> initial_clusters, <span class="dt">categories =</span> exchange_partners))</span>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true"></a><span class="co">#&gt;        User      System verstrichen </span></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true"></a><span class="co">#&gt;       0.004       0.000       0.004</span></span></code></pre></div>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true"></a><span class="co">#&gt;       0.003       0.000       0.003</span></span></code></pre></div>
 <p>Well, there is not a lot going on here with this very small data set (N = 150), so let’s do this for a larger data set with 1000 data points.</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a>N &lt;-<span class="st"> </span><span class="dv">1000</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a>M &lt;-<span class="st"> </span><span class="dv">2</span></span>
@@ -483,10 +483,10 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb11-8"><a href="#cb11-8" aria-hidden="true"></a></span>
 <span id="cb11-9"><a href="#cb11-9" aria-hidden="true"></a><span class="kw">system.time</span>(<span class="kw">anticlustering</span>(data, <span class="dt">K =</span> initial_clusters))</span>
 <span id="cb11-10"><a href="#cb11-10" aria-hidden="true"></a><span class="co">#&gt;        User      System verstrichen </span></span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true"></a><span class="co">#&gt;       3.012       0.000       3.012</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true"></a><span class="co">#&gt;       3.046       0.000       3.046</span></span>
 <span id="cb11-12"><a href="#cb11-12" aria-hidden="true"></a><span class="kw">system.time</span>(<span class="kw">anticlustering</span>(data, <span class="dt">K =</span> initial_clusters, <span class="dt">categories =</span> exchange_partners))</span>
 <span id="cb11-13"><a href="#cb11-13" aria-hidden="true"></a><span class="co">#&gt;        User      System verstrichen </span></span>
-<span id="cb11-14"><a href="#cb11-14" aria-hidden="true"></a><span class="co">#&gt;       0.047       0.000       0.047</span></span></code></pre></div>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true"></a><span class="co">#&gt;       0.046       0.000       0.045</span></span></code></pre></div>
 <p>The speedup is enormous!</p>
 </div>
 <div id="including-categorical-variables" class="section level3">
@@ -557,7 +557,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb17-10"><a href="#cb17-10" aria-hidden="true"></a>  <span class="dt">exchange_partners =</span> <span class="kw">generate_exchange_partners</span>(<span class="dv">10</span>, <span class="dt">N =</span> N)</span>
 <span id="cb17-11"><a href="#cb17-11" aria-hidden="true"></a>)</span>
 <span id="cb17-12"><a href="#cb17-12" aria-hidden="true"></a><span class="kw">Sys.time</span>() <span class="op">-</span><span class="st"> </span>start</span>
-<span id="cb17-13"><a href="#cb17-13" aria-hidden="true"></a><span class="co">#&gt; Time difference of 4.357228 secs</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true"></a><span class="co">#&gt; Time difference of 4.442622 secs</span></span>
 <span id="cb17-14"><a href="#cb17-14" aria-hidden="true"></a><span class="kw">mean_sd_tab</span>(data, groups) <span class="co"># means and standard deviations are similar</span></span>
 <span id="cb17-15"><a href="#cb17-15" aria-hidden="true"></a><span class="co">#&gt;   [,1]          [,2]          [,3]         </span></span>
 <span id="cb17-16"><a href="#cb17-16" aria-hidden="true"></a><span class="co">#&gt; 1 &quot;0.00 (1.00)&quot; &quot;0.01 (1.00)&quot; &quot;0.00 (1.00)&quot;</span></span>

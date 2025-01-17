@@ -431,13 +431,13 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a>binary_categories &lt;-<span class="st"> </span><span class="kw">categories_to_binary</span>(df[, <span class="kw">c</span>(<span class="st">&quot;species&quot;</span>, <span class="st">&quot;sex&quot;</span>)])</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a><span class="co"># see ?categories_to_binary</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a><span class="kw">head</span>(binary_categories)</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true"></a><span class="co">#&gt;   speciesChinstrap speciesGentoo sexmale</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true"></a><span class="co">#&gt; 1                0             0       1</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true"></a><span class="co">#&gt; 2                0             0       0</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true"></a><span class="co">#&gt; 3                0             0       0</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true"></a><span class="co">#&gt; 4                0             0       0</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true"></a><span class="co">#&gt; 5                0             0       1</span></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true"></a><span class="co">#&gt; 6                0             0       0</span></span></code></pre></div>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true"></a><span class="co">#&gt;   speciesAdelie speciesChinstrap speciesGentoo sexfemale sexmale</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true"></a><span class="co">#&gt; 1             1                0             0         0       1</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true"></a><span class="co">#&gt; 2             1                0             0         1       0</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true"></a><span class="co">#&gt; 3             1                0             0         1       0</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true"></a><span class="co">#&gt; 4             1                0             0         1       0</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true"></a><span class="co">#&gt; 5             1                0             0         0       1</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true"></a><span class="co">#&gt; 6             1                0             0         1       0</span></span></code></pre></div>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a>groups &lt;-<span class="st"> </span><span class="kw">anticlustering</span>(</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a>  binary_categories,</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true"></a>  <span class="dt">K =</span> <span class="dv">3</span>,</span>
@@ -535,9 +535,9 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb10-20"><a href="#cb10-20" aria-hidden="true"></a><span class="co">#&gt;      3     48        23     40</span></span>
 <span id="cb10-21"><a href="#cb10-21" aria-hidden="true"></a><span class="kw">mean_sd_tab</span>(numeric_vars, final_groups)</span>
 <span id="cb10-22"><a href="#cb10-22" aria-hidden="true"></a><span class="co">#&gt;   bill_length_mm bill_depth_mm  flipper_length_mm body_mass_g       </span></span>
-<span id="cb10-23"><a href="#cb10-23" aria-hidden="true"></a><span class="co">#&gt; 1 &quot;44.00 (5.46)&quot; &quot;17.17 (1.97)&quot; &quot;200.92 (14.05)&quot;  &quot;4203.38 (810.54)&quot;</span></span>
-<span id="cb10-24"><a href="#cb10-24" aria-hidden="true"></a><span class="co">#&gt; 2 &quot;44.00 (5.47)&quot; &quot;17.16 (1.96)&quot; &quot;201.05 (14.07)&quot;  &quot;4209.23 (812.49)&quot;</span></span>
-<span id="cb10-25"><a href="#cb10-25" aria-hidden="true"></a><span class="co">#&gt; 3 &quot;43.98 (5.52)&quot; &quot;17.17 (1.99)&quot; &quot;200.94 (14.05)&quot;  &quot;4208.56 (799.86)&quot;</span></span></code></pre></div>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true"></a><span class="co">#&gt; 1 &quot;43.99 (5.58)&quot; &quot;17.17 (1.96)&quot; &quot;201.00 (14.09)&quot;  &quot;4206.31 (811.03)&quot;</span></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true"></a><span class="co">#&gt; 2 &quot;43.99 (5.38)&quot; &quot;17.16 (1.98)&quot; &quot;201.00 (14.04)&quot;  &quot;4207.66 (803.24)&quot;</span></span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true"></a><span class="co">#&gt; 3 &quot;44.00 (5.49)&quot; &quot;17.17 (1.98)&quot; &quot;200.90 (14.05)&quot;  &quot;4207.21 (808.66)&quot;</span></span></code></pre></div>
 <p>The results are convincing, both with regard to the numeric variables and the categorical variables.</p>
 </div>
 <div id="b.-simultaneous-optimization" class="section level3">
@@ -566,9 +566,9 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb11-21"><a href="#cb11-21" aria-hidden="true"></a><span class="co">#&gt;      3     48        23     40</span></span>
 <span id="cb11-22"><a href="#cb11-22" aria-hidden="true"></a><span class="kw">mean_sd_tab</span>(numeric_vars, final_groups)</span>
 <span id="cb11-23"><a href="#cb11-23" aria-hidden="true"></a><span class="co">#&gt;   bill_length_mm bill_depth_mm  flipper_length_mm body_mass_g       </span></span>
-<span id="cb11-24"><a href="#cb11-24" aria-hidden="true"></a><span class="co">#&gt; 1 &quot;43.99 (5.54)&quot; &quot;17.17 (2.05)&quot; &quot;200.97 (14.04)&quot;  &quot;4207.21 (815.03)&quot;</span></span>
-<span id="cb11-25"><a href="#cb11-25" aria-hidden="true"></a><span class="co">#&gt; 2 &quot;44.00 (5.64)&quot; &quot;17.16 (2.06)&quot; &quot;200.96 (13.36)&quot;  &quot;4207.21 (769.92)&quot;</span></span>
-<span id="cb11-26"><a href="#cb11-26" aria-hidden="true"></a><span class="co">#&gt; 3 &quot;43.99 (5.28)&quot; &quot;17.16 (1.81)&quot; &quot;200.96 (14.73)&quot;  &quot;4206.76 (836.58)&quot;</span></span></code></pre></div>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true"></a><span class="co">#&gt; 1 &quot;44.00 (5.48)&quot; &quot;17.17 (1.96)&quot; &quot;200.96 (13.70)&quot;  &quot;4206.98 (828.22)&quot;</span></span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true"></a><span class="co">#&gt; 2 &quot;43.99 (5.54)&quot; &quot;17.16 (1.94)&quot; &quot;200.96 (14.58)&quot;  &quot;4206.98 (803.28)&quot;</span></span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true"></a><span class="co">#&gt; 3 &quot;43.99 (5.43)&quot; &quot;17.16 (2.02)&quot; &quot;200.97 (13.88)&quot;  &quot;4207.21 (791.01)&quot;</span></span></code></pre></div>
 <p>The following code extends the simultaneous optimization approach towards k-plus anticlustering, which ensures that standard deviations as well as means are similar between groups (and not only the means, which is achieved via standard k-means anticlustering):</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a>final_groups &lt;-<span class="st"> </span><span class="kw">anticlustering</span>(</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true"></a>  <span class="kw">cbind</span>(<span class="kw">kplus_moment_variables</span>(numeric_vars, <span class="dt">T =</span> <span class="dv">2</span>), binary_categories),</span>
@@ -592,9 +592,9 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb12-20"><a href="#cb12-20" aria-hidden="true"></a><span class="co">#&gt;      3     48        23     40</span></span>
 <span id="cb12-21"><a href="#cb12-21" aria-hidden="true"></a><span class="kw">mean_sd_tab</span>(numeric_vars, final_groups)</span>
 <span id="cb12-22"><a href="#cb12-22" aria-hidden="true"></a><span class="co">#&gt;   bill_length_mm bill_depth_mm  flipper_length_mm body_mass_g       </span></span>
-<span id="cb12-23"><a href="#cb12-23" aria-hidden="true"></a><span class="co">#&gt; 1 &quot;43.99 (5.49)&quot; &quot;17.17 (1.98)&quot; &quot;200.95 (14.06)&quot;  &quot;4207.21 (807.83)&quot;</span></span>
-<span id="cb12-24"><a href="#cb12-24" aria-hidden="true"></a><span class="co">#&gt; 2 &quot;43.99 (5.48)&quot; &quot;17.17 (1.97)&quot; &quot;200.98 (14.04)&quot;  &quot;4206.76 (808.06)&quot;</span></span>
-<span id="cb12-25"><a href="#cb12-25" aria-hidden="true"></a><span class="co">#&gt; 3 &quot;44.00 (5.48)&quot; &quot;17.16 (1.97)&quot; &quot;200.96 (14.08)&quot;  &quot;4207.21 (807.06)&quot;</span></span></code></pre></div>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true"></a><span class="co">#&gt; 1 &quot;44.00 (5.48)&quot; &quot;17.16 (1.98)&quot; &quot;200.97 (14.05)&quot;  &quot;4207.88 (807.64)&quot;</span></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true"></a><span class="co">#&gt; 2 &quot;43.99 (5.48)&quot; &quot;17.17 (1.98)&quot; &quot;200.97 (14.07)&quot;  &quot;4207.43 (807.94)&quot;</span></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true"></a><span class="co">#&gt; 3 &quot;43.99 (5.49)&quot; &quot;17.16 (1.97)&quot; &quot;200.95 (14.06)&quot;  &quot;4205.86 (807.37)&quot;</span></span></code></pre></div>
 <p>While we use <code>objective = &quot;variance&quot;</code>—indicating that the k-means objective is used—this code actually performs k-plus anticlustering because the first argument takes as input the augmented k-plus variable matrix<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>. We see that the standard deviations are now also quite evenly matched between groups (which is unlike when using standard k-means anticlustering).</p>
 <p>In the end: You should try out the different approaches for dealing with categorical variables and see which one works best for you!</p>
 </div>
@@ -602,7 +602,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <div class="footnotes">
 <hr />
 <ol>
-<li id="fn1"><p>Internally, <code>categories_to_binary()</code> is just a thin wrapper around the base <code>R</code> function <code>model.matrix()</code>.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn1"><p>Internally, <code>categories_to_binary()</code> is wrapper around the base <code>R</code> function <code>model.matrix()</code>.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
 <li id="fn2"><p>Only elements that have the same value in <code>categories</code> are exchanged between clusters throughout the optimization algorithm, so the initial balancing of the categories is never changed when the algorithm runs.<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
 <li id="fn3"><p>This is how k-plus anticlustering actually works: It reuses the k-means criterion but uses additional “k-plus” variables as input. More information on the k-plus approach is given in the documentation: <code>?kplus_moment_variables</code> and <code>?kplus_anticlustering</code>.<a href="#fnref3" class="footnote-back">↩︎</a></p></li>
 </ol>
