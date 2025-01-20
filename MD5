@@ -1,5 +1,5 @@
-ac3bbbebb3945d8cb47a5ef2023cc53a *DESCRIPTION
-7df0ca29212387c47d2da0c3f0c11ccb *LICENSE
+3949583fbcc6e4ffab110133841b18b2 *DESCRIPTION
+372c58878e57f8996f73a1509b8941a6 *LICENSE
 f9a25ab2d0d517e2852710d35aff73ba *NAMESPACE
 d92b6500ce5de951e99fb8b8442c90fe *R/Optimal_Dispersion.R
 1f65827f0a7c7b865e0e84692b10ae1a *R/bicriterion_iterated_local_search_call.R
@@ -50,7 +50,7 @@ b0e8df278410268ca7f1ca956c772f35 *inst/CITATION
 3b1b1ff8f2ab8204fc22c6b6e23bac54 *inst/doc/Categorical_vars.html
 70e2399a230aea600f44f14e03fa936b *inst/doc/Speeding_up_anticlustering.R
 5b5f7af3e008a37783eaf6c3cd7b3bcc *inst/doc/Speeding_up_anticlustering.Rmd
-3e709b399eb4d892d7964fb1ddce88ad *inst/doc/Speeding_up_anticlustering.html
+515d5888ed7119c1b480ac68f1e7e366 *inst/doc/Speeding_up_anticlustering.html
 d192543eece54e820227b028212aa5cd *inst/doc/stimulus-selection.R
 06c442e30353693d7bcc6c6d9a5928e8 *inst/doc/stimulus-selection.Rmd
 146d481e22f3932cd3972292aefae143 *inst/doc/stimulus-selection.html
@@ -92,7 +92,7 @@ e95bf43e64ab551b012daafbeee53c5d *inst/tinytest/test-singletons.R
 6fa5c6a9d43f35d0f8129e34258a0653 *inst/tinytest/test-solving-ilp.R
 3a02f5ff3bed445c613062fcfe4ac553 *inst/tinytest/test-sorting.R
 8adb78efe318faf06929bb4bd83efd8e *inst/tinytest/test-standardize.R
-896303f6e011efc3d141e3fe4ec2d699 *inst/tinytest/test-three-phase-search-dynamic-population-size.R
+9a7773320b8d16a7c07501e134f62003 *inst/tinytest/test-three-phase-search-dynamic-population-size.R
 f204f4e2c8f1249dba74b870dee4125b *inst/tinytest/test-util.R
 99d42adfcafea5f494065e22f691c4e0 *man/anticlustering.Rd
 9e8a8be0da8e46f1967f196099ef6fda *man/balanced_clustering.Rd
@@ -134,9 +134,9 @@ b5987e058dc6bb283e65b16e21d71c59 *src/free-memory.c
 bf8e11763b71c626e93abb9e2645649c *src/kmeans-anticlustering.c
 ddc5c2167e519f49230741fee2e75daf *src/misc-array-methods.c
 5602d5a86a12e3dcd925dfb2ef6fae76 *src/set-up-data-structures.c
-ee97965ef5ae21e3337e714091310d58 *src/three-phase-dispersion.c
+8b71e3c7e0aab8ce24f8d3c8fdea2051 *src/three-phase-dispersion.c
 dc37e04b95ba2aa029e8ae77a8a8d3bc *src/three-phase-header.h
-6d71452f219eb8cb09fdc7b8d1cd9160 *src/three_phase_search_dynamic_population_size.c
+5af9bba5eb1b225472bad2bb2fe77a0b *src/three_phase_search_dynamic_population_size.c
 607dc10b3dbbc70dcd14733b4952b0aa *src/variance-objective.c
 61aabb9af277a592ebe97f4ac78266ee *tests/tinytest.R
 24aed8cf8948f682e2754d0395332963 *vignettes/Best_practices.Rmd

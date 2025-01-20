@@ -441,7 +441,7 @@ void SearchAlgorithmDisperion(void) {
     // Stop measuring time and calculate the elapsed time
     clock_t end_time = clock();
     double elapsed_time = (double) (end_time - start_time)/CLOCKS_PER_SEC;
-    Rprintf("The run time of the distance_clustering algortihm in seconds is: %f\n", elapsed_time);
+    // Rprintf("The run time of the distance_clustering algortihm in seconds is: %f\n", elapsed_time);
 }
 
 void DoubleNeighborhoodLocalSearchDispersion(int s[], int SizeGroup[], double* objective) {
@@ -695,7 +695,8 @@ void DirectPerturbationDispersion(int eta_max, int s[], int SizeGroup[]) {
 void CrossoverDispersion(int partition1[], int partition2[], int solutionChild[], int scSizeGroup[]) {
     /* Algorithm 5: combines partitions in a way that maintains group constraints */
 
-    int i, j, maxGroupDispersion, selectedGroup;
+    int i, j, selectedGroup;
+    double maxGroupDispersion;
     int elementCount, groupCount;
     int targetGroup = -1;
     int processedCount;

@@ -1,7 +1,7 @@
 Type: Package
 Package: anticlust
 Title: Subset Partitioning via Anticlustering
-Version: 0.8.9
+Version: 0.8.9-1
 Authors@R: c(
     person("Martin", "Papenberg", , "martin.papenberg@hhu.de", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-9900-4268")),
@@ -77,6 +77,6 @@ NeedsCompilation: yes
 RoxygenNote: 7.3.2
 SystemRequirements: Rendering the vignette requires pandoc
         (<https://pandoc.org/>).
-Packaged: 2025-01-17 12:39:40 UTC; martin
+Packaged: 2025-01-20 11:08:02 UTC; martin
 Repository: CRAN
-Date/Publication: 2025-01-17 15:10:14 UTC
+Date/Publication: 2025-01-20 13:00:08 UTC
