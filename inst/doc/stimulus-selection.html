@@ -28,46 +28,31 @@ document.addEventListener('DOMContentLoaded', function(e) {
   }
 });
 </script>
-<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
-// v0.0.1
-// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
-
-document.addEventListener('DOMContentLoaded', function() {
-  const codeList = document.getElementsByClassName("sourceCode");
-  for (var i = 0; i < codeList.length; i++) {
-    var linkList = codeList[i].getElementsByTagName('a');
-    for (var j = 0; j < linkList.length; j++) {
-      if (linkList[j].innerHTML === "") {
-        linkList[j].setAttribute('aria-hidden', 'true');
-      }
-    }
-  }
-});
-</script>
 
 <style type="text/css">
-  code{white-space: pre-wrap;}
-  span.smallcaps{font-variant: small-caps;}
-  span.underline{text-decoration: underline;}
-  div.column{display: inline-block; vertical-align: top; width: 50%;}
-  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-  ul.task-list{list-style: none;}
-    </style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
 
 
 
 <style type="text/css">
-  code {
-    white-space: pre;
-  }
-  .sourceCode {
-    overflow: visible;
-  }
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
 </style>
 <style type="text/css" data-origin="pandoc">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
 div.sourceCode { margin: 1em 0; }
 pre.sourceCode { margin: 0; }
@@ -79,55 +64,54 @@ pre > code.sourceCode { white-space: pre-wrap; }
 pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
-  { counter-reset: source-line 0; }
+{ counter-reset: source-line 0; }
 pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
+{ position: relative; left: -4em; counter-increment: source-line; }
 pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-    color: #aaaaaa;
-  }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
 div.sourceCode
-  {   }
+{ }
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code span.at { color: #7d9029; } /* Attribute */
-code span.bn { color: #40a070; } /* BaseN */
-code span.bu { } /* BuiltIn */
-code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #4070a0; } /* Char */
-code span.cn { color: #880000; } /* Constant */
-code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code span.dt { color: #902000; } /* DataType */
-code span.dv { color: #40a070; } /* DecVal */
-code span.er { color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #40a070; } /* Float */
-code span.fu { color: #06287e; } /* Function */
-code span.im { } /* Import */
-code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code span.op { color: #666666; } /* Operator */
-code span.ot { color: #007020; } /* Other */
-code span.pp { color: #bc7a00; } /* Preprocessor */
-code span.sc { color: #4070a0; } /* SpecialChar */
-code span.ss { color: #bb6688; } /* SpecialString */
-code span.st { color: #4070a0; } /* String */
-code span.va { color: #19177c; } /* Variable */
-code span.vs { color: #4070a0; } /* VerbatimString */
-code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
 </style>
 <script>
 // apply pandoc div.sourceCode style to pre.sourceCode instead
@@ -353,26 +337,45 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 
-<h1 class="title toc-ignore">Using the R package anticlust for stimulus selection in experiments</h1>
+<h1 class="title toc-ignore">Using the R package anticlust for stimulus
+selection in experiments</h1>
 <h4 class="author">Martin Papenberg</h4>
 
 
 
-<p>This tutorial teaches you how to use the <code>R</code> package <code>anticlust</code> for stimulus selection in psychological experiments. All code can easily be reproduced via Copy &amp; Paste. The tutorial discusses the following functionalities:</p>
+<p>This tutorial teaches you how to use the <code>R</code> package
+<code>anticlust</code> for stimulus selection in psychological
+experiments. All code can easily be reproduced via Copy &amp; Paste. The
+tutorial discusses the following functionalities:</p>
 <ul>
 <li>Match similar stimuli based on covariates of interest</li>
-<li>Minimize differences between stimulus sets with regard to some variables</li>
-<li>Maximize differences between stimulus sets with regard to some variables</li>
-<li>Balance the occurrence of a categorical variable between stimulus sets</li>
+<li>Minimize differences between stimulus sets with regard to some
+variables</li>
+<li>Maximize differences between stimulus sets with regard to some
+variables</li>
+<li>Balance the occurrence of a categorical variable between stimulus
+sets</li>
 </ul>
-<p>To follow the code in this tutorial, load the <code>anticlust</code> package first:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">library</span>(anticlust)</span></code></pre></div>
-<p>For the examples in this document, we use norming data for a stimulus set provided by Schaper, Kuhlmann and Bayen (2019a, 2019b). It is available when the package <code>anticlust</code> is loaded:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="kw">data</span>(<span class="st">&quot;schaper2019&quot;</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a><span class="co"># look at the data</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a><span class="kw">head</span>(schaper2019)</span></code></pre></div>
+<p>To follow the code in this tutorial, load the <code>anticlust</code>
+package first:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(anticlust)</span></code></pre></div>
+<p>For the examples in this document, we use norming data for a stimulus
+set provided by Schaper, Kuhlmann and Bayen (2019a, 2019b). It is
+available when the package <code>anticlust</code> is loaded:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;schaper2019&quot;</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co"># look at the data</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="fu">head</span>(schaper2019)</span></code></pre></div>
 <div class="kable-table">
 <table>
+<colgroup>
+<col width="20%" />
+<col width="9%" />
+<col width="19%" />
+<col width="21%" />
+<col width="10%" />
+<col width="10%" />
+<col width="5%" />
+</colgroup>
 <thead>
 <tr class="header">
 <th align="left">item</th>
@@ -442,58 +445,96 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </tbody>
 </table>
 </div>
-<p>The item pool consists of 96 German words, given in the column <code>item</code>. Each word represents an object that is either typically found in a bathroom or in a kitchen. For their experiments, Schaper et al.  partitioned the pool into 3 word lists that should be as similar as possible with regard to four numeric criteria (that is: <code>rating_consistent</code>, <code>rating_inconsistent</code>, <code>syllables</code>, <code>frequency</code>). Typically, stimulus sets may contain more than 96 elements (and the selection usually becomes more effective when the pool is larger), but the logic for stimulus selection that is applied in this tutorial can be transfered to arbitrarily large stimulus sets.</p>
+<p>The item pool consists of 96 German words, given in the column
+<code>item</code>. Each word represents an object that is either
+typically found in a bathroom or in a kitchen. For their experiments,
+Schaper et al.  partitioned the pool into 3 word lists that should be as
+similar as possible with regard to four numeric criteria (that is:
+<code>rating_consistent</code>, <code>rating_inconsistent</code>,
+<code>syllables</code>, <code>frequency</code>). Typically, stimulus
+sets may contain more than 96 elements (and the selection usually
+becomes more effective when the pool is larger), but the logic for
+stimulus selection that is applied in this tutorial can be transfered to
+arbitrarily large stimulus sets.</p>
 <div id="example-1a-maximize-differences-in-frequency" class="section level2">
 <h2>Example 1a: Maximize differences in frequency</h2>
-<p>In the first example, I select two word lists that differ on frequency but are as similar as possible with regard to consistency ratings and the number of syllables. First, I need to define the boundaries that define “high” and “low” frequency. Note that <code>frequency</code> is reverse-coded such that low values actually indicate high frequency. Here, I arbitrarily define values below 18 as “high” frequency and above 19 as “low” frequency, but any user-defined splits are possible.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a>schaper2019 &lt;-<span class="st"> </span><span class="kw">within</span>(schaper2019, {</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>  freq &lt;-<span class="st"> </span><span class="kw">ifelse</span>(frequency <span class="op">&lt;</span><span class="st"> </span><span class="dv">18</span>, <span class="st">&quot;high&quot;</span>, <span class="ot">NA</span>)</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a>  freq &lt;-<span class="st"> </span><span class="kw">ifelse</span>(frequency <span class="op">&gt;</span><span class="st"> </span><span class="dv">19</span>, <span class="st">&quot;low&quot;</span>, freq)</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a>})</span></code></pre></div>
-<p>This code defined a new column <code>freq</code> for the data set <code>schaper2019</code> that is either “low”, “high” or missing (<code>NA</code>). Let’s check it out:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a>schaper2019<span class="op">$</span>freq</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a><span class="co">#&gt;  [1] &quot;low&quot;  NA     &quot;high&quot; &quot;high&quot; &quot;high&quot; &quot;low&quot;  NA     &quot;high&quot; &quot;high&quot; &quot;low&quot; </span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a><span class="co">#&gt; [11] NA     &quot;low&quot;  &quot;high&quot; &quot;high&quot; NA     &quot;high&quot; &quot;high&quot; &quot;high&quot; &quot;low&quot;  &quot;low&quot; </span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a><span class="co">#&gt; [21] &quot;high&quot; &quot;low&quot;  &quot;high&quot; &quot;high&quot; &quot;low&quot;  NA     &quot;low&quot;  &quot;high&quot; &quot;low&quot;  &quot;high&quot;</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a><span class="co">#&gt; [31] NA     &quot;high&quot; &quot;high&quot; &quot;high&quot; NA     NA     &quot;low&quot;  NA     &quot;low&quot;  &quot;high&quot;</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a><span class="co">#&gt; [41] &quot;low&quot;  NA     &quot;low&quot;  &quot;high&quot; &quot;low&quot;  &quot;high&quot; NA     NA     NA     NA    </span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true"></a><span class="co">#&gt; [51] NA     &quot;low&quot;  &quot;low&quot;  &quot;low&quot;  NA     &quot;high&quot; &quot;high&quot; &quot;low&quot;  &quot;low&quot;  &quot;low&quot; </span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true"></a><span class="co">#&gt; [61] &quot;low&quot;  NA     &quot;high&quot; &quot;high&quot; NA     &quot;low&quot;  NA     &quot;low&quot;  NA     NA    </span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true"></a><span class="co">#&gt; [71] &quot;low&quot;  NA     NA     &quot;low&quot;  &quot;low&quot;  NA     NA     &quot;high&quot; &quot;high&quot; NA    </span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true"></a><span class="co">#&gt; [81] &quot;low&quot;  &quot;low&quot;  NA     &quot;low&quot;  &quot;high&quot; &quot;high&quot; NA     &quot;high&quot; &quot;low&quot;  &quot;high&quot;</span></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true"></a><span class="co">#&gt; [91] NA     NA     &quot;high&quot; NA     NA     &quot;high&quot;</span></span></code></pre></div>
-<p>Before matching high and low frequency words, it is necessary to remove cases that are not selected, i.e. where the entry in <code>freq</code> is <code>NA</code>:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a>selected &lt;-<span class="st"> </span><span class="kw">subset</span>(schaper2019, <span class="op">!</span><span class="kw">is.na</span>(freq))</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a><span class="co"># see how many cases were selected:</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a><span class="kw">table</span>(selected<span class="op">$</span>freq)</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a><span class="co">#&gt; </span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true"></a><span class="co">#&gt; high  low </span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true"></a><span class="co">#&gt;   33   31</span></span></code></pre></div>
-<p>Now, I use the <code>anticlust</code> function <code>matching()</code> to find paired words of high and low frequency that are as similar as possible on consistency and the number of syllables:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a><span class="co"># Match the conditions based on covariates</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a>covariates &lt;-<span class="st"> </span><span class="kw">scale</span>(selected[, <span class="dv">3</span><span class="op">:</span><span class="dv">5</span>])</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a>selected<span class="op">$</span>matches &lt;-<span class="st"> </span><span class="kw">matching</span>(</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true"></a>  covariates, </span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true"></a>  <span class="dt">match_between =</span> selected<span class="op">$</span>freq,</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true"></a>  <span class="dt">match_within =</span> selected<span class="op">$</span>room,</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true"></a>  <span class="dt">match_extreme_first =</span> <span class="ot">FALSE</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true"></a>)</span></code></pre></div>
-<p>The first argument defines the covariates that should be similar in both sets. I used the function <code>scale()</code> before passing the covariates to the matching function to standardize the variables. This way, each variable has the same weight in the matching process, which is usually desirable. The argument <code>match_between</code> is the grouping variable based on <code>frequency</code> that I just defined. The argument <code>match_within</code> is used to ensure that matches are selected between words belonging to the same room. The argument <code>match_extreme_first</code> is used to guide the behaviour of the matching algorithm, but its precise meaning is not important for now (for more information, see <code>?matching</code>). Generally, if we plan to only keep a subset of all matches – as we do in the current application –, we set <code>match_extreme_first</code> to <code>FALSE</code>. If we want to keep all elements, <code>match_extreme_first = TRUE</code> is usually better.</p>
+<p>In the first example, I select two word lists that differ on
+frequency but are as similar as possible with regard to consistency
+ratings and the number of syllables. First, I need to define the
+boundaries that define “high” and “low” frequency. Note that
+<code>frequency</code> is reverse-coded such that low values actually
+indicate high frequency. Here, I arbitrarily define values below 18 as
+“high” frequency and above 19 as “low” frequency, but any user-defined
+splits are possible.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>schaper2019 <span class="ot">&lt;-</span> <span class="fu">within</span>(schaper2019, {</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  freq <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(frequency <span class="sc">&lt;</span> <span class="dv">18</span>, <span class="st">&quot;high&quot;</span>, <span class="cn">NA</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  freq <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(frequency <span class="sc">&gt;</span> <span class="dv">19</span>, <span class="st">&quot;low&quot;</span>, freq)</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>})</span></code></pre></div>
+<p>This code defined a new column <code>freq</code> for the data set
+<code>schaper2019</code> that is either “low”, “high” or missing
+(<code>NA</code>). Let’s check it out:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>schaper2019<span class="sc">$</span>freq</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt;  [1] &quot;low&quot;  NA     &quot;high&quot; &quot;high&quot; &quot;high&quot; &quot;low&quot;  NA     &quot;high&quot; &quot;high&quot; &quot;low&quot; </span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">#&gt; [11] NA     &quot;low&quot;  &quot;high&quot; &quot;high&quot; NA     &quot;high&quot; &quot;high&quot; &quot;high&quot; &quot;low&quot;  &quot;low&quot; </span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co">#&gt; [21] &quot;high&quot; &quot;low&quot;  &quot;high&quot; &quot;high&quot; &quot;low&quot;  NA     &quot;low&quot;  &quot;high&quot; &quot;low&quot;  &quot;high&quot;</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt; [31] NA     &quot;high&quot; &quot;high&quot; &quot;high&quot; NA     NA     &quot;low&quot;  NA     &quot;low&quot;  &quot;high&quot;</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt; [41] &quot;low&quot;  NA     &quot;low&quot;  &quot;high&quot; &quot;low&quot;  &quot;high&quot; NA     NA     NA     NA    </span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt; [51] NA     &quot;low&quot;  &quot;low&quot;  &quot;low&quot;  NA     &quot;high&quot; &quot;high&quot; &quot;low&quot;  &quot;low&quot;  &quot;low&quot; </span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co">#&gt; [61] &quot;low&quot;  NA     &quot;high&quot; &quot;high&quot; NA     &quot;low&quot;  NA     &quot;low&quot;  NA     NA    </span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#&gt; [71] &quot;low&quot;  NA     NA     &quot;low&quot;  &quot;low&quot;  NA     NA     &quot;high&quot; &quot;high&quot; NA    </span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="co">#&gt; [81] &quot;low&quot;  &quot;low&quot;  NA     &quot;low&quot;  &quot;high&quot; &quot;high&quot; NA     &quot;high&quot; &quot;low&quot;  &quot;high&quot;</span></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="co">#&gt; [91] NA     NA     &quot;high&quot; NA     NA     &quot;high&quot;</span></span></code></pre></div>
+<p>Before matching high and low frequency words, it is necessary to
+remove cases that are not selected, i.e. where the entry in
+<code>freq</code> is <code>NA</code>:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>selected <span class="ot">&lt;-</span> <span class="fu">subset</span>(schaper2019, <span class="sc">!</span><span class="fu">is.na</span>(freq))</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co"># see how many cases were selected:</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="fu">table</span>(selected<span class="sc">$</span>freq)</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; high  low </span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt;   33   31</span></span></code></pre></div>
+<p>Now, I use the <code>anticlust</code> function
+<code>matching()</code> to find paired words of high and low frequency
+that are as similar as possible on consistency and the number of
+syllables:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># Match the conditions based on covariates</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>covariates <span class="ot">&lt;-</span> <span class="fu">scale</span>(selected[, <span class="dv">3</span><span class="sc">:</span><span class="dv">5</span>])</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>selected<span class="sc">$</span>matches <span class="ot">&lt;-</span> <span class="fu">matching</span>(</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  covariates, </span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>  <span class="at">match_between =</span> selected<span class="sc">$</span>freq,</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>  <span class="at">match_within =</span> selected<span class="sc">$</span>room,</span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>  <span class="at">match_extreme_first =</span> <span class="cn">FALSE</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>)</span></code></pre></div>
+<p>The first argument defines the covariates that should be similar in
+both sets. I used the function <code>scale()</code> before passing the
+covariates to the matching function to standardize the variables. This
+way, each variable has the same weight in the matching process, which is
+usually desirable. The argument <code>match_between</code> is the
+grouping variable based on <code>frequency</code> that I just defined.
+The argument <code>match_within</code> is used to ensure that matches
+are selected between words belonging to the same room. The argument
+<code>match_extreme_first</code> is used to guide the behaviour of the
+matching algorithm, but its precise meaning is not important for now
+(for more information, see <code>?matching</code>). Generally, if we
+plan to only keep a subset of all matches – as we do in the current
+application –, we set <code>match_extreme_first</code> to
+<code>FALSE</code>. If we want to keep all elements,
+<code>match_extreme_first = TRUE</code> is usually better.</p>
 <p>Next, let us check out some of the matches we created:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a><span class="kw">subset</span>(selected, matches <span class="op">==</span><span class="st"> </span><span class="dv">1</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">subset</span>(selected, matches <span class="sc">==</span> <span class="dv">1</span>)</span></code></pre></div>
 <div class="kable-table">
 <table>
 <colgroup>
-<col width="2%"></col>
-<col width="12%"></col>
-<col width="8%"></col>
-<col width="17%"></col>
-<col width="19%"></col>
-<col width="9%"></col>
-<col width="9%"></col>
-<col width="4%"></col>
-<col width="4%"></col>
-<col width="7%"></col>
+<col width="2%" />
+<col width="12%" />
+<col width="8%" />
+<col width="17%" />
+<col width="19%" />
+<col width="9%" />
+<col width="9%" />
+<col width="4%" />
+<col width="4%" />
+<col width="7%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -537,20 +578,20 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </tbody>
 </table>
 </div>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a><span class="kw">subset</span>(selected, matches <span class="op">==</span><span class="st"> </span><span class="dv">2</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">subset</span>(selected, matches <span class="sc">==</span> <span class="dv">2</span>)</span></code></pre></div>
 <div class="kable-table">
 <table>
 <colgroup>
-<col width="2%"></col>
-<col width="13%"></col>
-<col width="7%"></col>
-<col width="17%"></col>
-<col width="19%"></col>
-<col width="9%"></col>
-<col width="9%"></col>
-<col width="4%"></col>
-<col width="4%"></col>
-<col width="7%"></col>
+<col width="2%" />
+<col width="13%" />
+<col width="7%" />
+<col width="17%" />
+<col width="19%" />
+<col width="9%" />
+<col width="9%" />
+<col width="4%" />
+<col width="4%" />
+<col width="7%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -594,16 +635,28 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </tbody>
 </table>
 </div>
-<p>The matches are numbered by similarity, meaning that matches with grouping number 1 are most similar. Therefore, we can easily select the 8 best-matched groups of words that we would like include in our experiment:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="co"># Select the 8 best matches:</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a>final_selection &lt;-<span class="st"> </span><span class="kw">subset</span>(selected, matches <span class="op">&lt;=</span><span class="st"> </span><span class="dv">8</span>)</span></code></pre></div>
-<p>Last, we check the quality of the results by investigating the descriptive statistics – means and standard deviations (in brackets) – by condition:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a><span class="co"># Check quality of the selection:</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true"></a><span class="kw">mean_sd_tab</span>(</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true"></a>  final_selection[, <span class="dv">3</span><span class="op">:</span><span class="dv">6</span>], </span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true"></a>  final_selection<span class="op">$</span>freq</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true"></a>)</span></code></pre></div>
+<p>The matches are numbered by similarity, meaning that matches with
+grouping number 1 are most similar. Therefore, we can easily select the
+8 best-matched groups of words that we would like include in our
+experiment:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># Select the 8 best matches:</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>final_selection <span class="ot">&lt;-</span> <span class="fu">subset</span>(selected, matches <span class="sc">&lt;=</span> <span class="dv">8</span>)</span></code></pre></div>
+<p>Last, we check the quality of the results by investigating the
+descriptive statistics – means and standard deviations (in brackets) –
+by condition:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="co"># Check quality of the selection:</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="fu">mean_sd_tab</span>(</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>  final_selection[, <span class="dv">3</span><span class="sc">:</span><span class="dv">6</span>], </span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>  final_selection<span class="sc">$</span>freq</span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>)</span></code></pre></div>
 <table>
+<colgroup>
+<col width="7%" />
+<col width="26%" />
+<col width="29%" />
+<col width="17%" />
+<col width="19%" />
+</colgroup>
 <thead>
 <tr class="header">
 <th align="left"></th>
@@ -630,56 +683,74 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </tr>
 </tbody>
 </table>
-<p>The descriptive statistics are similar across the sets for the consistency ratings and the number of syllables, and dissimilar for frequency, which is good. In general, the results can even be improved if we can select from a larger item pool (then, more matches are possible).</p>
-<p>If we are not sure how many items should be part of our experiment, the function <code>plot_similarity()</code> may help. It plots an index of similarity (see <code>?plot_similarity</code>) for each match:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a><span class="kw">plot_similarity</span>(</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a>  covariates, </span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true"></a>  <span class="dt">groups =</span> selected<span class="op">$</span>matches</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true"></a>)</span></code></pre></div>
-<p><img src="data:image/png;base64,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" /><!-- --></p>
-<p>The figure depicts the sum of pairwise dissimilarities (based on the Euclidean distance) variance per match; the larger the value, the less homogenous the match. It seems indeed that the first eight matches are most similar; after the 8th match, there is already a notable decline in similarity.</p>
+<p>The descriptive statistics are similar across the sets for the
+consistency ratings and the number of syllables, and dissimilar for
+frequency, which is good. In general, the results can even be improved
+if we can select from a larger item pool (then, more matches are
+possible).</p>
+<p>If we are not sure how many items should be part of our experiment,
+the function <code>plot_similarity()</code> may help. It plots an index
+of similarity (see <code>?plot_similarity</code>) for each match:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="fu">plot_similarity</span>(</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>  covariates, </span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>  <span class="at">groups =</span> selected<span class="sc">$</span>matches</span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>)</span></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<p>The figure depicts the sum of pairwise dissimilarities (based on the
+Euclidean distance) variance per match; the larger the value, the less
+homogenous the match. It seems indeed that the first eight matches are
+most similar; after the 8th match, there is already a notable decline in
+similarity.</p>
 </div>
 <div id="example-1b-two-factorial-design" class="section level2">
 <h2>Example 1b: Two-factorial design</h2>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a><span class="co"># Reload the data for next example</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true"></a><span class="kw">data</span>(<span class="st">&quot;schaper2019&quot;</span>)</span></code></pre></div>
-<p>In another example, we construct a two-factorial design: we create groups that differ on <code>rating_consistent</code> and <code>rating_inconsistent</code> (these properties are orthogonally crossed) but are similar on frequency and the number of syllables. First, we categorize the variables frequency and syllables into two levels, respectively. This time, I just use median splits, which means that I do not exclude any data in this first step:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true"></a>schaper2019 &lt;-<span class="st"> </span><span class="kw">within</span>(schaper2019, {</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true"></a>  incon &lt;-<span class="st"> </span><span class="kw">ifelse</span>(rating_inconsistent <span class="op">&lt;</span><span class="st"> </span><span class="kw">median</span>(rating_inconsistent), <span class="st">&quot;low incon&quot;</span>, <span class="ot">NA</span>)</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true"></a>  incon &lt;-<span class="st"> </span><span class="kw">ifelse</span>(rating_inconsistent <span class="op">&gt;=</span><span class="st"> </span><span class="kw">median</span>(rating_inconsistent), <span class="st">&quot;high incon&quot;</span>, incon)</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true"></a>  con &lt;-<span class="st"> </span><span class="kw">ifelse</span>(rating_consistent <span class="op">&lt;=</span><span class="st"> </span><span class="kw">median</span>(rating_consistent), <span class="st">&quot;low con&quot;</span>, <span class="ot">NA</span>)</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true"></a>  con &lt;-<span class="st"> </span><span class="kw">ifelse</span>(rating_consistent <span class="op">&gt;</span><span class="st"> </span><span class="kw">median</span>(rating_consistent), <span class="st">&quot;high con&quot;</span>, con)</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true"></a>})</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="co"># Reload the data for next example</span></span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;schaper2019&quot;</span>)</span></code></pre></div>
+<p>In another example, we construct a two-factorial design: we create
+groups that differ on <code>rating_consistent</code> and
+<code>rating_inconsistent</code> (these properties are orthogonally
+crossed) but are similar on frequency and the number of syllables.
+First, we categorize the variables frequency and syllables into two
+levels, respectively. This time, I just use median splits, which means
+that I do not exclude any data in this first step:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>schaper2019 <span class="ot">&lt;-</span> <span class="fu">within</span>(schaper2019, {</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>  incon <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(rating_inconsistent <span class="sc">&lt;</span> <span class="fu">median</span>(rating_inconsistent), <span class="st">&quot;low incon&quot;</span>, <span class="cn">NA</span>)</span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>  incon <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(rating_inconsistent <span class="sc">&gt;=</span> <span class="fu">median</span>(rating_inconsistent), <span class="st">&quot;high incon&quot;</span>, incon)</span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a>  con <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(rating_consistent <span class="sc">&lt;=</span> <span class="fu">median</span>(rating_consistent), <span class="st">&quot;low con&quot;</span>, <span class="cn">NA</span>)</span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a>  con <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(rating_consistent <span class="sc">&gt;</span> <span class="fu">median</span>(rating_consistent), <span class="st">&quot;high con&quot;</span>, con)</span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a>})</span></code></pre></div>
 <p>Let us check how many words are left per condition:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true"></a><span class="kw">table</span>(schaper2019<span class="op">$</span>con, schaper2019<span class="op">$</span>incon)</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true"></a><span class="co">#&gt;           </span></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true"></a><span class="co">#&gt;            high incon low incon</span></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true"></a><span class="co">#&gt;   high con         26        22</span></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true"></a><span class="co">#&gt;   low con          27        21</span></span></code></pre></div>
-<p>Next, we conduct a matching between the four groups that resulted from crossing frequency and syllables:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true"></a><span class="co"># Match the conditions based on covariates</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true"></a>covariates &lt;-<span class="st"> </span><span class="kw">scale</span>(schaper2019[, <span class="kw">c</span>(<span class="st">&quot;frequency&quot;</span>, <span class="st">&quot;syllables&quot;</span>)])</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true"></a>schaper2019<span class="op">$</span>matches &lt;-<span class="st"> </span><span class="kw">matching</span>(</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true"></a>  covariates, </span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true"></a>  <span class="dt">match_between =</span> schaper2019[, <span class="kw">c</span>(<span class="st">&quot;con&quot;</span>, <span class="st">&quot;incon&quot;</span>)],</span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true"></a>  <span class="dt">match_extreme_first =</span> <span class="ot">FALSE</span></span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true"></a>)</span></code></pre></div>
-<p>In this application, each match consists of 4 words because we have 4 conditions, e.g.:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true"></a><span class="kw">subset</span>(schaper2019, matches <span class="op">==</span><span class="st"> </span><span class="dv">1</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="fu">table</span>(schaper2019<span class="sc">$</span>con, schaper2019<span class="sc">$</span>incon)</span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="co">#&gt;           </span></span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a><span class="co">#&gt;            high incon low incon</span></span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="co">#&gt;   high con         26        22</span></span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a><span class="co">#&gt;   low con          27        21</span></span></code></pre></div>
+<p>Next, we conduct a matching between the four groups that resulted
+from crossing frequency and syllables:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="co"># Match the conditions based on covariates</span></span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a>covariates <span class="ot">&lt;-</span> <span class="fu">scale</span>(schaper2019[, <span class="fu">c</span>(<span class="st">&quot;frequency&quot;</span>, <span class="st">&quot;syllables&quot;</span>)])</span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a>schaper2019<span class="sc">$</span>matches <span class="ot">&lt;-</span> <span class="fu">matching</span>(</span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a>  covariates, </span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a>  <span class="at">match_between =</span> schaper2019[, <span class="fu">c</span>(<span class="st">&quot;con&quot;</span>, <span class="st">&quot;incon&quot;</span>)],</span>
+<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a>  <span class="at">match_extreme_first =</span> <span class="cn">FALSE</span></span>
+<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a>)</span></code></pre></div>
+<p>In this application, each match consists of 4 words because we have 4
+conditions, e.g.:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="fu">subset</span>(schaper2019, matches <span class="sc">==</span> <span class="dv">1</span>)</span></code></pre></div>
 <div class="kable-table">
 <table style="width:100%;">
 <colgroup>
-<col width="2%"></col>
-<col width="11%"></col>
-<col width="7%"></col>
-<col width="15%"></col>
-<col width="17%"></col>
-<col width="8%"></col>
-<col width="8%"></col>
-<col width="4%"></col>
-<col width="7%"></col>
-<col width="9%"></col>
-<col width="6%"></col>
+<col width="2%" />
+<col width="11%" />
+<col width="7%" />
+<col width="15%" />
+<col width="17%" />
+<col width="8%" />
+<col width="8%" />
+<col width="4%" />
+<col width="7%" />
+<col width="9%" />
+<col width="6%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -752,19 +823,28 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </tbody>
 </table>
 </div>
-<p>To decide how many matched groups we would like to keep, let’s check out the similarity plot:</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true"></a><span class="co"># Plot covariate similarity by match:</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true"></a><span class="kw">plot_similarity</span>(covariates, schaper2019<span class="op">$</span>matches)</span></code></pre></div>
-<p><img src="data:image/png;base64,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" /><!-- --></p>
+<p>To decide how many matched groups we would like to keep, let’s check
+out the similarity plot:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a><span class="co"># Plot covariate similarity by match:</span></span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a><span class="fu">plot_similarity</span>(covariates, schaper2019<span class="sc">$</span>matches)</span></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
 <p>Based on the plot, we select the 10 best matches:</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true"></a><span class="co"># Select the 5 best matches:</span></span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true"></a>final_selection &lt;-<span class="st"> </span><span class="kw">subset</span>(schaper2019, matches <span class="op">&lt;=</span><span class="st"> </span><span class="dv">10</span>)</span></code></pre></div>
-<p>Last, we check quality of the selection by printing the descriptive statistics by condition:</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true"></a><span class="kw">mean_sd_tab</span>(</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true"></a>  <span class="kw">subset</span>(final_selection, <span class="dt">select =</span> <span class="dv">3</span><span class="op">:</span><span class="dv">6</span>), </span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true"></a>  <span class="kw">paste</span>(final_selection<span class="op">$</span>con, final_selection<span class="op">$</span>incon)</span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a><span class="co"># Select the 5 best matches:</span></span>
+<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a>final_selection <span class="ot">&lt;-</span> <span class="fu">subset</span>(schaper2019, matches <span class="sc">&lt;=</span> <span class="dv">10</span>)</span></code></pre></div>
+<p>Last, we check quality of the selection by printing the descriptive
+statistics by condition:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a><span class="fu">mean_sd_tab</span>(</span>
+<span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a>  <span class="fu">subset</span>(final_selection, <span class="at">select =</span> <span class="dv">3</span><span class="sc">:</span><span class="dv">6</span>), </span>
+<span id="cb19-3"><a href="#cb19-3" tabindex="-1"></a>  <span class="fu">paste</span>(final_selection<span class="sc">$</span>con, final_selection<span class="sc">$</span>incon)</span>
+<span id="cb19-4"><a href="#cb19-4" tabindex="-1"></a>)</span></code></pre></div>
 <table>
+<colgroup>
+<col width="24%" />
+<col width="21%" />
+<col width="24%" />
+<col width="14%" />
+<col width="15%" />
+</colgroup>
 <thead>
 <tr class="header">
 <th align="left"></th>
@@ -805,25 +885,31 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </tr>
 </tbody>
 </table>
-<p>Again, the covariates are quite similar between sets, but with a larger item pool even better results could be achieved.</p>
+<p>Again, the covariates are quite similar between sets, but with a
+larger item pool even better results could be achieved.</p>
 </div>
 <div id="example-2-anticlustering" class="section level2">
 <h2>Example 2: Anticlustering</h2>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true"></a><span class="co"># Reload the data for next example</span></span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true"></a><span class="kw">data</span>(<span class="st">&quot;schaper2019&quot;</span>)</span></code></pre></div>
-<p>In the next example, we wish to partition the entire pool of 96 items into 3 sets that are as similar as possible on all variables. That means that there is no independent variable that varies between conditions; the experimental manipulation is independent of the intrinsic stimulus properties. Creating stimulus sets that are overall similar to each other can be done using anticlustering (Papenberg &amp; Klau, 2020):</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true"></a><span class="co">## Conduct anticlustering (assign all items to three similar groups)</span></span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true"></a>schaper2019<span class="op">$</span>anticluster &lt;-<span class="st"> </span><span class="kw">anticlustering</span>(</span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true"></a>  schaper2019[, <span class="dv">3</span><span class="op">:</span><span class="dv">6</span>], </span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true"></a>  <span class="dt">K =</span> <span class="dv">3</span>,</span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true"></a>  <span class="dt">objective =</span> <span class="st">&quot;variance&quot;</span></span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true"></a>)</span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true"></a></span>
-<span id="cb21-8"><a href="#cb21-8" aria-hidden="true"></a><span class="co">## check out quality of the solution</span></span>
-<span id="cb21-9"><a href="#cb21-9" aria-hidden="true"></a><span class="kw">mean_sd_tab</span>(</span>
-<span id="cb21-10"><a href="#cb21-10" aria-hidden="true"></a>  <span class="kw">subset</span>(schaper2019, <span class="dt">select =</span> <span class="dv">3</span><span class="op">:</span><span class="dv">6</span>), </span>
-<span id="cb21-11"><a href="#cb21-11" aria-hidden="true"></a>  schaper2019<span class="op">$</span>anticluster</span>
-<span id="cb21-12"><a href="#cb21-12" aria-hidden="true"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a><span class="co"># Reload the data for next example</span></span>
+<span id="cb20-2"><a href="#cb20-2" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;schaper2019&quot;</span>)</span></code></pre></div>
+<p>In the next example, we wish to partition the entire pool of 96 items
+into 3 sets that are as similar as possible on all variables. That means
+that there is no independent variable that varies between conditions;
+the experimental manipulation is independent of the intrinsic stimulus
+properties. Creating stimulus sets that are overall similar to each
+other can be done using anticlustering (Papenberg &amp; Klau, 2020):</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a><span class="do">## Conduct anticlustering (assign all items to three similar groups)</span></span>
+<span id="cb21-2"><a href="#cb21-2" tabindex="-1"></a>schaper2019<span class="sc">$</span>anticluster <span class="ot">&lt;-</span> <span class="fu">anticlustering</span>(</span>
+<span id="cb21-3"><a href="#cb21-3" tabindex="-1"></a>  schaper2019[, <span class="dv">3</span><span class="sc">:</span><span class="dv">6</span>], </span>
+<span id="cb21-4"><a href="#cb21-4" tabindex="-1"></a>  <span class="at">K =</span> <span class="dv">3</span>,</span>
+<span id="cb21-5"><a href="#cb21-5" tabindex="-1"></a>  <span class="at">objective =</span> <span class="st">&quot;variance&quot;</span></span>
+<span id="cb21-6"><a href="#cb21-6" tabindex="-1"></a>)</span>
+<span id="cb21-7"><a href="#cb21-7" tabindex="-1"></a></span>
+<span id="cb21-8"><a href="#cb21-8" tabindex="-1"></a><span class="do">## check out quality of the solution</span></span>
+<span id="cb21-9"><a href="#cb21-9" tabindex="-1"></a><span class="fu">mean_sd_tab</span>(</span>
+<span id="cb21-10"><a href="#cb21-10" tabindex="-1"></a>  <span class="fu">subset</span>(schaper2019, <span class="at">select =</span> <span class="dv">3</span><span class="sc">:</span><span class="dv">6</span>), </span>
+<span id="cb21-11"><a href="#cb21-11" tabindex="-1"></a>  schaper2019<span class="sc">$</span>anticluster</span>
+<span id="cb21-12"><a href="#cb21-12" tabindex="-1"></a>)</span></code></pre></div>
 <table>
 <thead>
 <tr class="header">
@@ -861,31 +947,39 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </div>
 <div id="example-2b-anticlustering-on-subset-selection" class="section level2">
 <h2>Example 2b: Anticlustering on subset selection</h2>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true"></a><span class="co"># Reload the data for next example</span></span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true"></a><span class="kw">data</span>(<span class="st">&quot;schaper2019&quot;</span>)</span></code></pre></div>
-<p>If we do not want to include all 96 words in our experiment, we can again use the <code>matching()</code> function to select a subset of similar stimuli that we employ. Again, we wish the select three groups that are as similar as possible on all variables, but we only use a subset of all 96 items. To achieve this goal, we create triplets of similar stimuli using <code>matching()</code>; afterwards, the items belonging to the same triplet will be assigned to different experimental sets. We use the argument <code>match_within</code> to ensure that all triplets consist of items belonging to the same room:</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true"></a><span class="co"># First, identify triplets of similar word, within room</span></span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true"></a>covariates &lt;-<span class="st"> </span><span class="kw">scale</span>(schaper2019[, <span class="dv">3</span><span class="op">:</span><span class="dv">6</span>])</span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true"></a>schaper2019<span class="op">$</span>triplet &lt;-<span class="st"> </span><span class="kw">matching</span>(</span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true"></a>  covariates,</span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true"></a>  <span class="dt">p =</span> <span class="dv">3</span>,</span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true"></a>  <span class="dt">match_within =</span> schaper2019<span class="op">$</span>room</span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true"></a>)</span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true"></a></span>
-<span id="cb23-9"><a href="#cb23-9" aria-hidden="true"></a><span class="co"># check out the two most similar triplets:</span></span>
-<span id="cb23-10"><a href="#cb23-10" aria-hidden="true"></a><span class="kw">subset</span>(schaper2019, triplet <span class="op">==</span><span class="st"> </span><span class="dv">1</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a><span class="co"># Reload the data for next example</span></span>
+<span id="cb22-2"><a href="#cb22-2" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;schaper2019&quot;</span>)</span></code></pre></div>
+<p>If we do not want to include all 96 words in our experiment, we can
+again use the <code>matching()</code> function to select a subset of
+similar stimuli that we employ. Again, we wish the select three groups
+that are as similar as possible on all variables, but we only use a
+subset of all 96 items. To achieve this goal, we create triplets of
+similar stimuli using <code>matching()</code>; afterwards, the items
+belonging to the same triplet will be assigned to different experimental
+sets. We use the argument <code>match_within</code> to ensure that all
+triplets consist of items belonging to the same room:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" tabindex="-1"></a><span class="co"># First, identify triplets of similar word, within room</span></span>
+<span id="cb23-2"><a href="#cb23-2" tabindex="-1"></a>covariates <span class="ot">&lt;-</span> <span class="fu">scale</span>(schaper2019[, <span class="dv">3</span><span class="sc">:</span><span class="dv">6</span>])</span>
+<span id="cb23-3"><a href="#cb23-3" tabindex="-1"></a>schaper2019<span class="sc">$</span>triplet <span class="ot">&lt;-</span> <span class="fu">matching</span>(</span>
+<span id="cb23-4"><a href="#cb23-4" tabindex="-1"></a>  covariates,</span>
+<span id="cb23-5"><a href="#cb23-5" tabindex="-1"></a>  <span class="at">p =</span> <span class="dv">3</span>,</span>
+<span id="cb23-6"><a href="#cb23-6" tabindex="-1"></a>  <span class="at">match_within =</span> schaper2019<span class="sc">$</span>room</span>
+<span id="cb23-7"><a href="#cb23-7" tabindex="-1"></a>)</span>
+<span id="cb23-8"><a href="#cb23-8" tabindex="-1"></a></span>
+<span id="cb23-9"><a href="#cb23-9" tabindex="-1"></a><span class="co"># check out the two most similar triplets:</span></span>
+<span id="cb23-10"><a href="#cb23-10" tabindex="-1"></a><span class="fu">subset</span>(schaper2019, triplet <span class="sc">==</span> <span class="dv">1</span>)</span></code></pre></div>
 <div class="kable-table">
 <table>
 <colgroup>
-<col width="3%"></col>
-<col width="14%"></col>
-<col width="8%"></col>
-<col width="18%"></col>
-<col width="20%"></col>
-<col width="10%"></col>
-<col width="10%"></col>
-<col width="5%"></col>
-<col width="8%"></col>
+<col width="3%" />
+<col width="14%" />
+<col width="8%" />
+<col width="18%" />
+<col width="20%" />
+<col width="10%" />
+<col width="10%" />
+<col width="5%" />
+<col width="8%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -937,19 +1031,19 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </tbody>
 </table>
 </div>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true"></a><span class="kw">subset</span>(schaper2019, triplet <span class="op">==</span><span class="st"> </span><span class="dv">2</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" tabindex="-1"></a><span class="fu">subset</span>(schaper2019, triplet <span class="sc">==</span> <span class="dv">2</span>)</span></code></pre></div>
 <div class="kable-table">
 <table>
 <colgroup>
-<col width="3%"></col>
-<col width="14%"></col>
-<col width="8%"></col>
-<col width="18%"></col>
-<col width="20%"></col>
-<col width="10%"></col>
-<col width="10%"></col>
-<col width="5%"></col>
-<col width="8%"></col>
+<col width="3%" />
+<col width="14%" />
+<col width="8%" />
+<col width="18%" />
+<col width="20%" />
+<col width="10%" />
+<col width="10%" />
+<col width="5%" />
+<col width="8%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -1001,42 +1095,52 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </tbody>
 </table>
 </div>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true"></a></span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true"></a><span class="co"># Select the 10 best triplets</span></span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true"></a>best &lt;-<span class="st"> </span><span class="kw">subset</span>(schaper2019, triplet <span class="op">&lt;=</span><span class="st"> </span><span class="dv">10</span>)</span></code></pre></div>
-<p>Now, we use <code>anticlustering()</code> to assign the matched words to different sets:</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true"></a>best<span class="op">$</span>anticluster &lt;-<span class="st"> </span><span class="kw">anticlustering</span>(</span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true"></a>  best[, <span class="dv">3</span><span class="op">:</span><span class="dv">6</span>], </span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true"></a>  <span class="dt">K =</span> <span class="dv">3</span>,</span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true"></a>  <span class="dt">categories =</span> best<span class="op">$</span>triplet,</span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true"></a>  <span class="dt">objective =</span> <span class="st">&quot;variance&quot;</span></span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true"></a>)</span></code></pre></div>
-<p>In this function call, we pass the <code>triplets</code> to the argument <code>categories</code>, thus ensuring that the matched items are assigned to different sets. We can confirm this worked by looking at the cross table of <code>triplet</code> and <code>anticluster</code>:</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true"></a><span class="kw">table</span>(best<span class="op">$</span>triplet, best<span class="op">$</span>anticluster)</span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true"></a><span class="co">#&gt;     </span></span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true"></a><span class="co">#&gt;      1 2 3</span></span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true"></a><span class="co">#&gt;   1  1 1 1</span></span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true"></a><span class="co">#&gt;   2  1 1 1</span></span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true"></a><span class="co">#&gt;   3  1 1 1</span></span>
-<span id="cb27-7"><a href="#cb27-7" aria-hidden="true"></a><span class="co">#&gt;   4  1 1 1</span></span>
-<span id="cb27-8"><a href="#cb27-8" aria-hidden="true"></a><span class="co">#&gt;   5  1 1 1</span></span>
-<span id="cb27-9"><a href="#cb27-9" aria-hidden="true"></a><span class="co">#&gt;   6  1 1 1</span></span>
-<span id="cb27-10"><a href="#cb27-10" aria-hidden="true"></a><span class="co">#&gt;   7  1 1 1</span></span>
-<span id="cb27-11"><a href="#cb27-11" aria-hidden="true"></a><span class="co">#&gt;   8  1 1 1</span></span>
-<span id="cb27-12"><a href="#cb27-12" aria-hidden="true"></a><span class="co">#&gt;   9  1 1 1</span></span>
-<span id="cb27-13"><a href="#cb27-13" aria-hidden="true"></a><span class="co">#&gt;   10 1 1 1</span></span></code></pre></div>
-<p>Anticlustering strives to assign the matched triplets to the different sets in such a way that all sets are as similar as possible. Note that by ensuring that the triplets only consisted of items from the same room, the room was also balanced across anticlusters:</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true"></a><span class="kw">table</span>(best<span class="op">$</span>room, best<span class="op">$</span>anticluster)</span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true"></a><span class="co">#&gt;           </span></span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true"></a><span class="co">#&gt;            1 2 3</span></span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true"></a><span class="co">#&gt;   bathroom 5 5 5</span></span>
-<span id="cb28-5"><a href="#cb28-5" aria-hidden="true"></a><span class="co">#&gt;   kitchen  5 5 5</span></span></code></pre></div>
-<p>Last, we check out the descriptive statistics by anticluster, confirming that the sets are indeed quite similar on all numeric attributes:</p>
-<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true"></a><span class="co">## check out quality of the solution</span></span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true"></a><span class="kw">mean_sd_tab</span>(</span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true"></a>  <span class="kw">subset</span>(best, <span class="dt">select =</span> <span class="dv">3</span><span class="op">:</span><span class="dv">6</span>), </span>
-<span id="cb29-4"><a href="#cb29-4" aria-hidden="true"></a>  best<span class="op">$</span>anticluster</span>
-<span id="cb29-5"><a href="#cb29-5" aria-hidden="true"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" tabindex="-1"></a></span>
+<span id="cb25-2"><a href="#cb25-2" tabindex="-1"></a><span class="co"># Select the 10 best triplets</span></span>
+<span id="cb25-3"><a href="#cb25-3" tabindex="-1"></a>best <span class="ot">&lt;-</span> <span class="fu">subset</span>(schaper2019, triplet <span class="sc">&lt;=</span> <span class="dv">10</span>)</span></code></pre></div>
+<p>Now, we use <code>anticlustering()</code> to assign the matched words
+to different sets:</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" tabindex="-1"></a>best<span class="sc">$</span>anticluster <span class="ot">&lt;-</span> <span class="fu">anticlustering</span>(</span>
+<span id="cb26-2"><a href="#cb26-2" tabindex="-1"></a>  best[, <span class="dv">3</span><span class="sc">:</span><span class="dv">6</span>], </span>
+<span id="cb26-3"><a href="#cb26-3" tabindex="-1"></a>  <span class="at">K =</span> <span class="dv">3</span>,</span>
+<span id="cb26-4"><a href="#cb26-4" tabindex="-1"></a>  <span class="at">categories =</span> best<span class="sc">$</span>triplet,</span>
+<span id="cb26-5"><a href="#cb26-5" tabindex="-1"></a>  <span class="at">objective =</span> <span class="st">&quot;variance&quot;</span></span>
+<span id="cb26-6"><a href="#cb26-6" tabindex="-1"></a>)</span></code></pre></div>
+<p>In this function call, we pass the <code>triplets</code> to the
+argument <code>categories</code>, thus ensuring that the matched items
+are assigned to different sets. We can confirm this worked by looking at
+the cross table of <code>triplet</code> and
+<code>anticluster</code>:</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" tabindex="-1"></a><span class="fu">table</span>(best<span class="sc">$</span>triplet, best<span class="sc">$</span>anticluster)</span>
+<span id="cb27-2"><a href="#cb27-2" tabindex="-1"></a><span class="co">#&gt;     </span></span>
+<span id="cb27-3"><a href="#cb27-3" tabindex="-1"></a><span class="co">#&gt;      1 2 3</span></span>
+<span id="cb27-4"><a href="#cb27-4" tabindex="-1"></a><span class="co">#&gt;   1  1 1 1</span></span>
+<span id="cb27-5"><a href="#cb27-5" tabindex="-1"></a><span class="co">#&gt;   2  1 1 1</span></span>
+<span id="cb27-6"><a href="#cb27-6" tabindex="-1"></a><span class="co">#&gt;   3  1 1 1</span></span>
+<span id="cb27-7"><a href="#cb27-7" tabindex="-1"></a><span class="co">#&gt;   4  1 1 1</span></span>
+<span id="cb27-8"><a href="#cb27-8" tabindex="-1"></a><span class="co">#&gt;   5  1 1 1</span></span>
+<span id="cb27-9"><a href="#cb27-9" tabindex="-1"></a><span class="co">#&gt;   6  1 1 1</span></span>
+<span id="cb27-10"><a href="#cb27-10" tabindex="-1"></a><span class="co">#&gt;   7  1 1 1</span></span>
+<span id="cb27-11"><a href="#cb27-11" tabindex="-1"></a><span class="co">#&gt;   8  1 1 1</span></span>
+<span id="cb27-12"><a href="#cb27-12" tabindex="-1"></a><span class="co">#&gt;   9  1 1 1</span></span>
+<span id="cb27-13"><a href="#cb27-13" tabindex="-1"></a><span class="co">#&gt;   10 1 1 1</span></span></code></pre></div>
+<p>Anticlustering strives to assign the matched triplets to the
+different sets in such a way that all sets are as similar as possible.
+Note that by ensuring that the triplets only consisted of items from the
+same room, the room was also balanced across anticlusters:</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" tabindex="-1"></a><span class="fu">table</span>(best<span class="sc">$</span>room, best<span class="sc">$</span>anticluster)</span>
+<span id="cb28-2"><a href="#cb28-2" tabindex="-1"></a><span class="co">#&gt;           </span></span>
+<span id="cb28-3"><a href="#cb28-3" tabindex="-1"></a><span class="co">#&gt;            1 2 3</span></span>
+<span id="cb28-4"><a href="#cb28-4" tabindex="-1"></a><span class="co">#&gt;   bathroom 5 5 5</span></span>
+<span id="cb28-5"><a href="#cb28-5" tabindex="-1"></a><span class="co">#&gt;   kitchen  5 5 5</span></span></code></pre></div>
+<p>Last, we check out the descriptive statistics by anticluster,
+confirming that the sets are indeed quite similar on all numeric
+attributes:</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" tabindex="-1"></a><span class="do">## check out quality of the solution</span></span>
+<span id="cb29-2"><a href="#cb29-2" tabindex="-1"></a><span class="fu">mean_sd_tab</span>(</span>
+<span id="cb29-3"><a href="#cb29-3" tabindex="-1"></a>  <span class="fu">subset</span>(best, <span class="at">select =</span> <span class="dv">3</span><span class="sc">:</span><span class="dv">6</span>), </span>
+<span id="cb29-4"><a href="#cb29-4" tabindex="-1"></a>  best<span class="sc">$</span>anticluster</span>
+<span id="cb29-5"><a href="#cb29-5" tabindex="-1"></a>)</span></code></pre></div>
 <table>
 <thead>
 <tr class="header">
@@ -1074,9 +1178,17 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </div>
 <div id="references" class="section level2">
 <h2>References</h2>
-<p>Papenberg, M., &amp; Klau, G. W. (2021). Using anticlustering to partition data sets into equivalent parts. <em>Psychological Methods, 26</em>(2), 161–174. <a href="https://doi.org/10.1037/met0000301" class="uri">https://doi.org/10.1037/met0000301</a></p>
-<p>Schaper, M. L., Kuhlmann, B. G., &amp; Bayen, U. J. (2019a). Metacognitive expectancy effects in source monitoring: Beliefs, in-the-moment experiences, or both? Journal of Memory and Language, 107, 95–110. <a href="https://doi.org/10.1016/j.jml.2019.03.009" class="uri">https://doi.org/10.1016/j.jml.2019.03.009</a></p>
-<p>Schaper, M. L., Kuhlmann, B. G., &amp; Bayen, U. J. (2019b). Metamemory expectancy illusion and schema-consistent guessing in source monitoring. Journal of Experimental Psychology: Learning, Memory, and Cognition, 45, 470. <a href="https://doi.org/10.1037/xlm0000602" class="uri">https://doi.org/10.1037/xlm0000602</a></p>
+<p>Papenberg, M., &amp; Klau, G. W. (2021). Using anticlustering to
+partition data sets into equivalent parts. <em>Psychological Methods,
+26</em>(2), 161–174. <a href="https://doi.org/10.1037/met0000301" class="uri">https://doi.org/10.1037/met0000301</a></p>
+<p>Schaper, M. L., Kuhlmann, B. G., &amp; Bayen, U. J. (2019a).
+Metacognitive expectancy effects in source monitoring: Beliefs,
+in-the-moment experiences, or both? Journal of Memory and Language, 107,
+95–110. <a href="https://doi.org/10.1016/j.jml.2019.03.009" class="uri">https://doi.org/10.1016/j.jml.2019.03.009</a></p>
+<p>Schaper, M. L., Kuhlmann, B. G., &amp; Bayen, U. J. (2019b).
+Metamemory expectancy illusion and schema-consistent guessing in source
+monitoring. Journal of Experimental Psychology: Learning, Memory, and
+Cognition, 45, 470. <a href="https://doi.org/10.1037/xlm0000602" class="uri">https://doi.org/10.1037/xlm0000602</a></p>
 </div>
 
 

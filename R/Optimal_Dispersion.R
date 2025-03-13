@@ -12,7 +12,7 @@
 #' @param K The number of groups or a vector describing the size of
 #'     each group.
 #' @param solver Optional argument; currently supports "lpSolve", 
-#'     "glpk", and "symphony". See \code{\link{optimal_anticlustering}}.
+#'     "glpk", "symphony", and "gurobi". See \code{\link{optimal_anticlustering}}.
 #' @param max_dispersion_considered Optional argument used for early
 #'     stopping. If the dispersion found is equal to or exceeds this
 #'     value, a solution having the previous best dispersion is
@@ -156,6 +156,7 @@
 #' optimal_dispersion(unsolvable, K = c(2, 4)) # group sizes, not number of groups
 #' 
 
+
 optimal_dispersion <- function(
     x, K, 
     solver = NULL, 
@@ -196,6 +197,7 @@ optimal_dispersion <- function(
   dispersion_found <- FALSE
   # Data frame to keep track of previous nearest neighbours (init as NULL)
   all_nns <- NULL
+
   # Placeholders to store data needed for retrieving the anticlusters
   last_solution <- NULL
   all_nns_last <- NULL
@@ -217,7 +219,6 @@ optimal_dispersion <- function(
     # Reorder edge labels so that they start from 1 to C, where C is the number
     # of relevant edges (Better for creating K-coloring ILP).
     all_nns_reordered <- reorder_edges(all_nns)
-    # Construct graph from all previous edges (that had low distances)
     ilp <- k_coloring_ilp(all_nns_reordered, N, K, target_groups)
     solution <- solve_ilp(ilp, objective = "min", solver = solver, time_limit = time_limit)
     dispersion_found <- solution$status != 0
@@ -229,6 +230,7 @@ optimal_dispersion <- function(
       all_nns_last <- all_nns
       all_nns_reordered_last <- all_nns_reordered
       dispersions_considered <- c(dispersions_considered, dispersion)
+      
     }
     counter <- counter + 1
     # Take out distances that have been investigated to proceed
@@ -462,14 +464,20 @@ remove_redundant_edges <- function(df) {
 }
 
 # Function to solve optimal cannot_link constraints, used for the argument 
-# cannot_link in anticlustering()
+# cannot_link in anticlustering().
 optimal_cannot_link <- function(N, K, target_groups, cannot_link, repetitions) {
   repetitions <- ifelse(is.null(repetitions), 1, repetitions)
   all_nns_reordered <- reorder_edges(cannot_link)
   ilp <- k_coloring_ilp(all_nns_reordered, N, K, target_groups)
-  solution <- solve_ilp(
-    ilp, solver = ifelse(requireNamespace("Rsymphony", quietly = TRUE), "symphony", find_ilp_solver())
-  )
+  # select solver: gurobi > symphony > lpSolve > Glpk
+  if (requireNamespace("gurobi", quietly = TRUE)) {
+    solver <- "gurobi"
+  } else if (requireNamespace("Rsymphony", quietly = TRUE)) {
+    solver <- "symphony"
+  } else {
+    solver <- find_ilp_solver()
+  }
+  solution <- solve_ilp(ilp, solver = solver)
   if (solution$status != 0) {
     stop("The cannot-link constraints cannot be fulfilled.")
   }

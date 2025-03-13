@@ -98,7 +98,7 @@ exchanges <- anticlust:::get_exchange_partners_clique(cliques, 1, init, must_lin
 expect_true(!is.null(exchanges$cluster_id))
 expect_true(all(exchanges$sample_ids == 6:10))
 
-## Test stuff
+## Test stuff on larger data sets / random input
 
 N <- 100
 must_link <- sample(N, N, replace = TRUE)

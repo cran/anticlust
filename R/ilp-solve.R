@@ -28,6 +28,8 @@ solve_ilp <- function(ilp, objective = "max", solver = NULL, time_limit = NULL) 
     return(solve_ilp_symphony(ilp, objective, time_limit))
   } else if (solver == "lpSolve") {
     return(solve_ilp_lpSolve(ilp, objective, time_limit))
+  } else if (solver == "gurobi") {
+    return(solve_ilp_gurobi(ilp, objective, time_limit))
   }
 }
 
@@ -94,9 +96,41 @@ solve_ilp_lpSolve <- function(ilp, objective, time_limit) {
   ret_list
 }
 
+solve_ilp_gurobi <- function(ilp, objective, time_limit) {
+  
+  ilp$equalities[ilp$equalities == "=="] <- "=" # gurobi uses 1 '='
+
+  ## build model
+  model <- list()
+  model$A          <- ilp$constraints
+  model$obj        <- ilp$obj_function
+  model$modelsense <- objective
+  model$rhs        <- ilp$rhs
+  model$sense      <- ilp$equalities
+  model$vtype     <- "B"
+  
+  ## solve
+  if (argument_exists(time_limit)) {
+    ilp_solution <- gurobi::gurobi(model, params = list(LogToConsole = 0, TimeLimit = time_limit, MIPGap = 0))
+  } else {
+    ilp_solution <- gurobi::gurobi(model, params = list(LogToConsole = 0, MIPGap = 0))
+  }
+  ret_list <- list() 
+  ret_list$x <- ilp_solution$x
+  ret_list$obj <- ilp_solution$objval
+  ret_list$status <- ifelse(ilp_solution$status == "OPTIMAL", 0, 1)
+  ## name the decision variables
+  if (!is.null(ilp_solution$x)) { # gurobi does not return solution if not optimal
+    names(ret_list$x) <- colnames(ilp$constraints)
+  }
+  ret_list
+}
+
 # Function to find a solver package
 find_ilp_solver <- function() {
-  if (requireNamespace("lpSolve", quietly = TRUE)) {
+  if (requireNamespace("gurobi", quietly = TRUE)) {
+    return("gurobi")
+  } else if (requireNamespace("lpSolve", quietly = TRUE)) {
     return("lpSolve")
   } else if (requireNamespace("Rglpk", quietly = TRUE)) {
     return("glpk")
@@ -105,4 +139,3 @@ find_ilp_solver <- function() {
   }
   check_if_solver_is_available() # throws an error here!
 }
-
