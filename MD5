@@ -1,4 +1,4 @@
-d3a99a3feadb96dce6fea50fa9647918 *DESCRIPTION
+54719bbe66a19b1df051cfc62441fc11 *DESCRIPTION
 372c58878e57f8996f73a1509b8941a6 *LICENSE
 f9a25ab2d0d517e2852710d35aff73ba *NAMESPACE
 720a0472ca4cd04e6c5d1632cf398e16 *R/Optimal_Dispersion.R
@@ -50,12 +50,12 @@ b0e8df278410268ca7f1ca956c772f35 *inst/CITATION
 38af122f1e7c21645c796027373c9022 *inst/doc/Categorical_vars.html
 70e2399a230aea600f44f14e03fa936b *inst/doc/Speeding_up_anticlustering.R
 5b5f7af3e008a37783eaf6c3cd7b3bcc *inst/doc/Speeding_up_anticlustering.Rmd
-206a25b6b110b9463df7a836372c6f5e *inst/doc/Speeding_up_anticlustering.html
+3df87600d10ceb0cd17e5545b42ae9fe *inst/doc/Speeding_up_anticlustering.html
 d192543eece54e820227b028212aa5cd *inst/doc/stimulus-selection.R
 06c442e30353693d7bcc6c6d9a5928e8 *inst/doc/stimulus-selection.Rmd
 01f582a724773ec844c4a6c0d3593f4a *inst/doc/stimulus-selection.html
 6c1c35f1ceee510cde3cd6ac6fa75bc2 *inst/render.sh
-ec525bc18528ee98241de73e4b35bfda *inst/tinytest/test-2pml.R
+ee49fd4f1ff6239c48840fcd2bcb3c07 *inst/tinytest/test-2pml.R
 99f172d7ce51ad2d5808cb45d011833a *inst/tinytest/test-argument-K.R
 38005c92f40f77ac328a3a026e482657 *inst/tinytest/test-brusco.R
 72139ed7adea2ddda1ccd1290d93712a *inst/tinytest/test-c-implementation.R
