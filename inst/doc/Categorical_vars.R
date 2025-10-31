@@ -9,14 +9,14 @@ set.seed(123)
 library(anticlust)
 
 ## -----------------------------------------------------------------------------
-library(palmerpenguins)
+data(penguins)
 # First exclude cases with missing values
 df <- na.omit(penguins)
 head(df)
 nrow(df)
 
 ## -----------------------------------------------------------------------------
-numeric_vars <- df[, c("bill_length_mm", "bill_depth_mm", "flipper_length_mm", "body_mass_g")]
+numeric_vars <- df[, c("bill_len", "bill_dep", "flipper_len", "body_mass")]
 groups <- anticlustering(
   numeric_vars, 
   K = 3,
@@ -46,73 +46,38 @@ table(groups, df$sex)
 table(groups, df$species) 
 
 ## -----------------------------------------------------------------------------
-binary_categories <- categories_to_binary(df[, c("species", "sex")])
-# see ?categories_to_binary
-head(binary_categories)
+all_features <- data.frame(numeric_vars, df[, c("species", "sex")])
 
 ## -----------------------------------------------------------------------------
 groups <- anticlustering(
-  binary_categories,
+  all_features,
   K = 3,
   method = "local-maximum", 
-  objective = "variance",
-  repetitions = 10,
   standardize = TRUE
 )
 table(groups, df$sex)
 table(groups, df$species)
 
 ## -----------------------------------------------------------------------------
-binary_categories <- categories_to_binary(df[, c("species", "sex")], use_combinations = TRUE)
+binary_categories <- categories_to_binary(df[, c("species", "year")], use_combinations = FALSE)
+data_input <- data.frame(binary_categories, numeric_vars)
 groups <- anticlustering(
-  binary_categories,
+  data_input,
   K = 3,
-  method = "local-maximum", 
-  objective = "variance",
-  repetitions = 10,
-  standardize = TRUE
-)
-table(groups, df$sex)
-table(groups, df$species) 
-table(groups, df$sex, df$species)
-
-## -----------------------------------------------------------------------------
-final_groups <- anticlustering(
-  numeric_vars,
-  K = groups,
-  standardize = TRUE,
   method = "local-maximum",
-  categories = df[, c("species", "sex")]
+  standardize = TRUE
 )
-
-table(groups, df$sex)
-table(groups, df$species)
-mean_sd_tab(numeric_vars, final_groups)
+table(groups, df$year, df$species)
 
 ## -----------------------------------------------------------------------------
-final_groups <- anticlustering(
-  cbind(numeric_vars, binary_categories),
+binary_categories <- categories_to_binary(df[, c("species", "year")], use_combinations = TRUE)
+data_input <- data.frame(binary_categories, numeric_vars)
+groups <- anticlustering(
+  data_input,
   K = 3,
-  standardize = TRUE,
-  method = "local-maximum", 
-  objective = "variance",
-  repetitions = 10
+  method = "local-maximum",
+  standardize = TRUE
 )
+table(groups, df$year, df$species)
 
-table(groups, df$sex)
-table(groups, df$species)
-mean_sd_tab(numeric_vars, final_groups)
-
-## -----------------------------------------------------------------------------
-final_groups <- anticlustering(
-  cbind(kplus_moment_variables(numeric_vars, T = 2), binary_categories),
-  K = 3,
-  method = "local-maximum", 
-  objective = "variance", 
-  repetitions = 10
-)
-
-table(groups, df$sex)
-table(groups, df$species)
-mean_sd_tab(numeric_vars, final_groups)
 

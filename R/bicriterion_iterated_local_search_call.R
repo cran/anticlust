@@ -5,13 +5,9 @@
 #' anticlustering by Brusco et al. (2020;
 #' <doi:10.1111/bmsp.12186>). The description of their algorithm is
 #' given in Section 3 of their paper (in particular, see the
-#' Pseudocode in their Figure 2). As of anticlust version 0.8.6, this
-#' function also includes some extensions to the BILS algorithm that
-#' are implemented through the optional arguments
-#' \code{dispersion_distances}, \code{average_diversity},
-#' \code{init_partitions}, and \code{return}. If these arguments are
-#' not changed, the function performs the "vanilla" BILS as described
-#' in Brusco et al.
+#' Pseudocode in their Figure 2). It also implements some extensions
+#' to the bicriterion approach for anticlustering described in 
+#' Papenberg, Breuer, et al. (2025).
 #' 
 #' 
 #' @param x The data input. Can be one of two structures: (1) A
@@ -105,8 +101,14 @@
 #' the dispersion should be computed on the basis of a different
 #' distance matrix.
 #' 
-#' If multiple \code{init_partitions} are given, ensure that each
-#' partition (i.e., each row of\code{init_partitions}) has the exact
+#' As of anticlust version 0.8.6, this function includes some extensions 
+#' to the original BILS by Brusco et al. (2020). These extensions are are 
+#' implemented through the optional arguments \code{dispersion_distances}, 
+#' \code{average_diversity}, \code{init_partitions}, and \code{return}, and
+#' were described in Papenberg, Breuer, et al. (2025). 
+#' If these arguments are not changed, the function performs the "vanilla" BILS 
+#' as described in Brusco et al. If multiple \code{init_partitions} are given, 
+#' ensure that each partition (i.e., each row of\code{init_partitions}) has the exact
 #' same output of \code{\link{table}}.
 #' 
 #' @return By default, a \code{matrix} of anticlustering partitions
@@ -191,6 +193,10 @@
 #' Breuer (2020). Using anticlustering to maximize diversity and dispersion:
 #' Comparing exact and heuristic approaches. Bachelor thesis.
 #' 
+#' Papenberg, M., Breuer, M., Diekhoff, M., Tran, N. K., & Klau, G. W. (2025). 
+#' Extending the Bicriterion Approach for Anticlustering: Exact and Hybrid 
+#' Approaches. Psychometrika. Advance online publication. https://doi.org/10.1017/psy.2025.10052
+#' 
 
 bicriterion_anticlustering <- function(
   x, K, R = NULL, 
@@ -201,6 +207,7 @@ bicriterion_anticlustering <- function(
   input_validation_bicriterion_anticlustering(x, K, R, W, Xi, dispersion_distances, average_diversity, init_partitions, return)
 
   distances <- convert_to_distances(x) 
+  
   N <- NROW(distances)
   WL <- length(W)
   if (is.null(R)) {
@@ -376,5 +383,4 @@ checkneighborhood <- function(Xi) {
     stop("First neighborhood percentage needs to be smaller than the second.")
   }
 }
-
 

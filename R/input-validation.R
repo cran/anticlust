@@ -14,25 +14,49 @@ input_validation_anticlustering <- function(x, K, objective, method,
   validate_data_matrix(x)
   x <- as.matrix(x)
   N <- nrow(x)
+  unequal_group_sizes <- (length(K) != 1) && (sd(table(initialize_clusters(N, K, NULL))) != 0)
+  initial_grouping_passed <- length(K) == N
+
+  validate_input(
+    method, "method", len = 1,
+    input_set = c("ilp", "exchange", "heuristic", "local-maximum", "brusco", "2PML", "3phase"), 
+    not_na = TRUE, not_function = TRUE
+  )
+  
+  if (method == "3phase") {
+    if (is.function("objective")) stop("objective can only be a function with method = 'exchange' or method = 'local-maximum'.")
+    if (objective %in% "dispersion") {
+      stop("objective = dispersion does not work with the 3 phase search algorithm.")
+    }
+    if (unequal_group_sizes && objective %in% c("average-diversity", "variance", "kplus")) {
+      stop("The three phase algorithm does not support the average diversity, variance and k-plus objective for unequal-sized groups.")
+    }
+    if (initial_grouping_passed) {
+      stop("The 3 phase algorithm does not handle passing an initial grouping via argument `K`.")
+    }
+  }
   
   if (argument_exists(must_link)) {
     validate_input(must_link, "must_link", not_function = TRUE, len = N)
     must_link <- as.matrix(must_link)
 
-    validate_input(objective, "objective", input_set = c("diversity"), not_na = TRUE, len = 1) 
-    validate_input(method, "method", input_set = c("local-maximum", "exchange", "2PML"), not_na = TRUE, len = 1) 
-    
-    if (ncol(must_link) != 1) {
-      stop("Argument must_link must be a vector.")
-    }
-    if (objective %in% c("dispersion", "kplus", "variance")) {
-      stop("Currently, must-link constraints only work with objective = 'diversity'.")
-    }
     if (argument_exists(categories)) {
       stop("\nCombining the `categories` argument together with must-link constraints \n",
            "is currently not supported; use the categorical variables as part of the first argument\n",
            "`x` instead (see the vignette on categorical variables).")
     }
+    
+    validate_input(objective, "objective", input_set = c("diversity","kplus", "variance"), not_na = TRUE, len = 1) 
+    validate_input(method, "method", input_set = c("local-maximum", "exchange", "2PML"), not_na = TRUE, len = 1) 
+    
+    if (unequal_group_sizes && objective %in% c("kplus", "variance")) {
+      stop("K-means and k-plus anticlustering are only possible with equal-sized groups when must-link constraints are used.")
+    }
+    
+    if (ncol(must_link) != 1) {
+      stop("Argument must_link must be a vector.")
+    }
+
     if (isTRUE(preclustering)) {
       stop("It is not possible to combine preclustering with must-link constraints.")
     }
@@ -47,11 +71,14 @@ input_validation_anticlustering <- function(x, K, objective, method,
                    objmode = "numeric", must_be_integer = TRUE, 
                    greater_than = 0, smaller_than = NROW(x)+1, 
                    not_na = TRUE, not_function = TRUE)
-    if (ncol(cannot_link) != 2) {
+    if (ncol(cannot_link) > 2) {
       stop("Argument cannot_link must have 2 columns.")
     }
     if (objective == "dispersion") {
       stop("objective = dispersion does not work with cannot_link constraints.")
+    }
+    if (!method %in% c("brusco", "exchange", "local-maximum", "ilp")) {
+      stop("Cannot-link constraints currently work with method = 'brusco', 'exchange', 'local-maximum', or 'ilp'.")
     }
     if (argument_exists(categories)) {
       stop("\nCombining the `categories` argument together with cannot-link constraints \n",
@@ -78,11 +105,10 @@ input_validation_anticlustering <- function(x, K, objective, method,
   validate_input(preclustering, "preclustering", len = 1,
                  input_set = c(TRUE, FALSE), not_na = TRUE, not_function = TRUE)
 
-  validate_input(
-    method, "method", len = 1,
-    input_set = c("ilp", "exchange", "heuristic", "centroid", "local-maximum", "brusco", "2PML"), 
-    not_na = TRUE, not_function = TRUE
-  )
+  if (any(is.na(x)) && preclustering) {
+    stop("Cannot use preclustering when there is NAs in the input.")
+  }
+  
   if (method == "2PML") {
     if (!argument_exists(must_link)) {
       stop("Method 2PML only works with must-link constraints.")
@@ -274,14 +300,14 @@ validate_input <- function(obj, argument_name, len = NULL, greater_than = NULL,
 }
 
 ## Validate feature input
-validate_data_matrix <- function(x) {
-  x <- as.matrix(x)
-  if (mode(x) != "numeric") {
-    stop("Your data (the first argument `x`) should only contain numeric entries, but this is not the case.")
+validate_data_matrix <- function(x, NA_allowed = TRUE) {
+  x <- data.frame(x)
+  modes <- sapply(x, mode)
+  if (any(modes != "numeric")) {
+    stop("Your data (the first argument `x`) should only consist of numeric and factor variables.")
   }
-  if (any(is.na(x))) {
-    stop("Your data contains `NA`. I cannot proceed because ",
-         "I cannot estimate similarity for data that has missing values. Sorry!")
+  if (any(is.na(x)) && !NA_allowed) {
+    stop("Missing values are not allowed.")
   }
 }
 
@@ -363,7 +389,7 @@ input_validation_matching <- function(
   match_extreme_first, 
   target_group
 ) {
-  validate_data_matrix(x)
+  validate_data_matrix(x, FALSE)
   N <- nrow(as.matrix(x))
   validate_input(
     p, "p", 

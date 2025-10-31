@@ -39,7 +39,7 @@ natively supported. May also be a user-defined function. See
 Details.}
 
 \item{method}{One of "exchange" (default) , "local-maximum",
-"brusco", "ilp", or "2PML".  See Details.}
+"brusco", "ilp", "2PML", or "3phase".  See Details.}
 
 \item{preclustering}{Boolean. Should a preclustering be conducted
 before anticlusters are created? Defaults to \code{FALSE}. See
@@ -51,8 +51,9 @@ between groups. See Details.}
 
 \item{repetitions}{The number of times a search heuristic is
 initiated when using \code{method = "exchange"}, \code{method =
-"local-maximum"}, \code{method = "brusco"}, or \code{method = "2PML"}. 
-In the end, the best objective found across the repetitions is returned.}
+"local-maximum"}, \code{method = "brusco"}, \code{method = "3phase"}, 
+or \code{method = "2PML"}. In the end, the best objective found across 
+the repetitions is returned.}
 
 \item{standardize}{Boolean. If \code{TRUE} and \code{x} is a
 feature matrix, the data is standardized through a call to
@@ -60,7 +61,9 @@ feature matrix, the data is standardized through a call to
 argument is silently ignored if \code{x} is a distance matrix.}
 
 \item{cannot_link}{A 2 column matrix where each row has the indices 
-of two elements that must not be assigned to the same anticluster.}
+of two elements that must not be assigned to the same anticluster. 
+Alternatively a vector of length \code{nrow(x)}; elements having 
+the same value in this vector cannot be assigned to the same anticluster.}
 
 \item{must_link}{A numeric vector of length \code{nrow(x)}. Elements having 
 the same value in this vector are assigned to the same anticluster.}
@@ -77,8 +80,9 @@ maximizing instead of minimizing a clustering objective function.
 Implements anticlustering methods as described in Papenberg and
 Klau (2021; <doi:10.1037/met0000301>), Brusco et al. 
 (2020; <doi:10.1111/bmsp.12186>), Papenberg (2024; 
-<doi:10.1111/bmsp.12315>), and Papenberg et al. (2025; 
-<doi:10.1101/2025.03.03.641320>).
+<doi:10.1111/bmsp.12315>), Papenberg, Wang, et al. (2025; 
+<doi:10.1016/j.crmeth.2025.101137>), Papenberg, Breuer, et al. (2025; 
+<doi:10.1017/psy.2025.10052>), and Yang et al. (2022; <doi:10.1016/j.ejor.2022.02.003>).
 }
 \details{
 This function is used to solve anticlustering. That is, the data
@@ -161,6 +165,10 @@ In the standard case, groups of equal size are generated. Adjust
 the argument \code{K} to create groups of different size (see
 Examples).
 
+As of version 0.8.12, this function supports handling of missing values (\code{NA}). 
+In this case the function \code{\link[stats]{dist}} handles the (\code{NA}) when converting
+features to pairwise distances. 
+
 \strong{Algorithms for anticlustering}
 
 By default, a heuristic method is employed for anticlustering: the
@@ -200,6 +208,14 @@ that approximate the optimal pareto efficient set according to both
 objectives (diversity and dispersion). Thus, to fully utilize the
 BILS algorithm, use the function
 \code{\link{bicriterion_anticlustering}}.
+
+Since version 0.8.12, \code{method = "3phase"} calls the three phase search algorithm 
+for anticlustering by Yang et al. (2022). For anticlust, we implemented some
+changes of their default procedure, in particular they used a maximum "time"
+that the algorithm runs before terminating. For consistency with our other 
+methods in anticlust, we are however using a maximum number of repetitions. 
+Our default is 50 repetitions, which may be increased (but not decreased!) 
+with the \code{repetitions} argument. 
 
 \strong{Optimal anticlustering}
 
@@ -254,6 +270,15 @@ when using the bicriterion algorithm by Bruso et al. Using the argument
 \code{categories} is only available for the classical exchange procedures, 
 that is, for \code{method = "exchange"} and \code{method = "local-maximum"}. 
 
+As of version 0.8.12, the data input \code{x} can contain variables of type \code{factor}
+to represent categorical variables. In this case, they are internally converted to 
+binary via \code{\link{categories_to_binary}}, which no longer needs to be done 
+manually by users (and which can be tricky in particular when combining categorical 
+and numeric variables, and when using the k-plus objective). However note that the internal
+conversion always uses \code{use_combinations = FALSE}, which may not always 
+what users need. In this case, I still recommend using \code{\link{categories_to_binary}} 
+manually.
+
 \strong{Anticlustering with constraints}
 
 Versions 0.8.6 and 0.8.7 of anticlust introduced the possibility to induce
@@ -272,14 +297,18 @@ a necessary dependency with anticlust. It is therefore recommended to
 manually install the Rsymphony package, which is then automatically 
 selected as solver when using the \code{must_link} argument. If you have
 access to the gurobi solver and have the gurobi R package installed, it will
-be selected as solver (which is even faster than Symphony).
+be selected as solver (which is even faster than Symphony). As of version 0.8.11, 
+it is also possible to use \code{cannot_link} as a vector. In this case it 
+is ensured that elements having the same value in \code{cannot_link} are not
+linked in the same cluster. The methods for handling \code{cannot_link} constraints
+have been described in Papenberg, Breuer, et al. (2025). 
 
 Must-link constraints are passed as a single vector of length \code{nrow(x)}.
 Positions that have the same numeric index are assigned to the same anticluster 
 (if the constraints can be fulfilled). When including must-link constraints, 
 \code{method = "2PML"} performs a specialized search heuristic that potentially
 yields better results than \code{method = "local-maximum"}. The must-link 
-functionality and the 2PML algorithm was introduced in Papenberg et al. (2025).
+functionality and the 2PML algorithm was introduced in Papenberg, Wang, et al. (2025).
 
 The examples illustrate the usage of the \code{must_link} and \code{cannot_link}
 arguments. Currently, the different kinds of constraints (arguments \code{must_link}, 
@@ -409,6 +438,10 @@ diversity and dispersion criteria for anticlustering: A bicriterion
 approach. British Journal of Mathematical and Statistical
 Psychology, 73, 275-396. https://doi.org/10.1111/bmsp.12186
 
+Papenberg, M., Breuer, M., Diekhoff, M., Tran, N. K., & Klau, G. W. 
+(2025). Extending the Bicriterion Approach for Anticlustering: 
+Exact and Hybrid Approaches. Advance online publication. Psychometrika.
+
 Papenberg, M., & Klau, G. W. (2021). Using anticlustering to partition 
 data sets into equivalent parts. Psychological Methods, 26(2), 
 161–174. https://doi.org/10.1037/met0000301.
@@ -429,6 +462,11 @@ Control and Cybernetics, 15, 213-218.
 Weitz, R. R., & Lakshminarayanan, S. (1998). An empirical comparison of 
 heuristic methods for creating maximally diverse groups. Journal of the 
 Operational Research Society, 49(6), 635-646. https://doi.org/10.1057/palgrave.jors.2600510
+
+Yang, X., Cai, Z., Jin, T., Tang, Z., & Gao, S. (2022). A three-phase search 
+approach with dynamic population size for solving the maximally diverse grouping 
+problem. European Journal of Operational Research, 302(3), 925-953. 
+https://doi.org/10.1016/j.ejor.2022.02.003
 }
 \author{
 Martin Papenberg \email{martin.papenberg@hhu.de}

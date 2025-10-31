@@ -49,11 +49,12 @@ exact_anticlustering <- function(data, K, preclustering, cannot_link) {
 }
 
 # Ensure that a distance matrix is passed
-convert_to_distances <- function(data) {
+convert_to_distances <- function(data, squared = FALSE) {
   if (!is_distance_matrix(data)) {
-    distances <- as.matrix(dist(data))
+    distances <- dist(data)
+    if (squared) distances <- distances^2
   } else {
-    distances <- as.matrix(data)
+    distances <- data
   }
-  distances
+  as.matrix(distances)
 }

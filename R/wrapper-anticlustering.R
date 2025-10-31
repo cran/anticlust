@@ -8,8 +8,9 @@
 #' Implements anticlustering methods as described in Papenberg and
 #' Klau (2021; <doi:10.1037/met0000301>), Brusco et al. 
 #' (2020; <doi:10.1111/bmsp.12186>), Papenberg (2024; 
-#' <doi:10.1111/bmsp.12315>), and Papenberg et al. (2025; 
-#' <doi:10.1101/2025.03.03.641320>).
+#' <doi:10.1111/bmsp.12315>), Papenberg, Wang, et al. (2025; 
+#' <doi:10.1016/j.crmeth.2025.101137>), Papenberg, Breuer, et al. (2025; 
+#' <doi:10.1017/psy.2025.10052>), and Yang et al. (2022; <doi:10.1016/j.ejor.2022.02.003>). 
 #'
 #' @param x The data input. Can be one of two structures: (1) A
 #'     feature matrix where rows correspond to elements and columns
@@ -29,7 +30,7 @@
 #'     natively supported. May also be a user-defined function. See
 #'     Details.
 #' @param method One of "exchange" (default) , "local-maximum",
-#'     "brusco", "ilp", or "2PML".  See Details.
+#'     "brusco", "ilp", "2PML", or "3phase".  See Details.
 #' @param preclustering Boolean. Should a preclustering be conducted
 #'     before anticlusters are created? Defaults to \code{FALSE}. See
 #'     Details.
@@ -38,14 +39,17 @@
 #'     between groups. See Details.
 #' @param repetitions The number of times a search heuristic is
 #'     initiated when using \code{method = "exchange"}, \code{method =
-#'     "local-maximum"}, \code{method = "brusco"}, or \code{method = "2PML"}. 
-#'     In the end, the best objective found across the repetitions is returned.
+#'     "local-maximum"}, \code{method = "brusco"}, \code{method = "3phase"}, 
+#'     or \code{method = "2PML"}. In the end, the best objective found across 
+#'     the repetitions is returned.
 #' @param standardize Boolean. If \code{TRUE} and \code{x} is a
 #'     feature matrix, the data is standardized through a call to
 #'     \code{\link{scale}} before the optimization starts. This
 #'     argument is silently ignored if \code{x} is a distance matrix.
 #' @param cannot_link A 2 column matrix where each row has the indices 
-#'     of two elements that must not be assigned to the same anticluster.
+#'     of two elements that must not be assigned to the same anticluster. 
+#'     Alternatively a vector of length \code{nrow(x)}; elements having 
+#'     the same value in this vector cannot be assigned to the same anticluster.
 #' @param must_link A numeric vector of length \code{nrow(x)}. Elements having 
 #'     the same value in this vector are assigned to the same anticluster.
 #'
@@ -143,6 +147,10 @@
 #' In the standard case, groups of equal size are generated. Adjust
 #' the argument \code{K} to create groups of different size (see
 #' Examples).
+#' 
+#' As of version 0.8.12, this function supports handling of missing values (\code{NA}). 
+#' In this case the function \code{\link[stats]{dist}} handles the (\code{NA}) when converting
+#' features to pairwise distances. 
 #'
 #' \strong{Algorithms for anticlustering}
 #'
@@ -183,6 +191,14 @@
 #' objectives (diversity and dispersion). Thus, to fully utilize the
 #' BILS algorithm, use the function
 #' \code{\link{bicriterion_anticlustering}}.
+#' 
+#' Since version 0.8.12, \code{method = "3phase"} calls the three phase search algorithm 
+#' for anticlustering by Yang et al. (2022). For anticlust, we implemented some
+#' changes of their default procedure, in particular they used a maximum "time"
+#' that the algorithm runs before terminating. For consistency with our other 
+#' methods in anticlust, we are however using a maximum number of repetitions. 
+#' Our default is 50 repetitions, which may be increased (but not decreased!) 
+#' with the \code{repetitions} argument. 
 #'
 #' \strong{Optimal anticlustering}
 #'
@@ -237,6 +253,15 @@
 #' \code{categories} is only available for the classical exchange procedures, 
 #' that is, for \code{method = "exchange"} and \code{method = "local-maximum"}. 
 #' 
+#' As of version 0.8.12, the data input \code{x} can contain variables of type \code{factor}
+#' to represent categorical variables. In this case, they are internally converted to 
+#' binary via \code{\link{categories_to_binary}}, which no longer needs to be done 
+#' manually by users (and which can be tricky in particular when combining categorical 
+#' and numeric variables, and when using the k-plus objective). However note that the internal
+#' conversion always uses \code{use_combinations = FALSE}, which may not always 
+#' what users need. In this case, I still recommend using \code{\link{categories_to_binary}} 
+#' manually.
+#' 
 #' \strong{Anticlustering with constraints}
 #' 
 #' Versions 0.8.6 and 0.8.7 of anticlust introduced the possibility to induce
@@ -255,14 +280,18 @@
 #' manually install the Rsymphony package, which is then automatically 
 #' selected as solver when using the \code{must_link} argument. If you have
 #' access to the gurobi solver and have the gurobi R package installed, it will
-#' be selected as solver (which is even faster than Symphony).
+#' be selected as solver (which is even faster than Symphony). As of version 0.8.11, 
+#' it is also possible to use \code{cannot_link} as a vector. In this case it 
+#' is ensured that elements having the same value in \code{cannot_link} are not
+#' linked in the same cluster. The methods for handling \code{cannot_link} constraints
+#' have been described in Papenberg, Breuer, et al. (2025). 
 #' 
 #' Must-link constraints are passed as a single vector of length \code{nrow(x)}.
 #' Positions that have the same numeric index are assigned to the same anticluster 
 #' (if the constraints can be fulfilled). When including must-link constraints, 
 #' \code{method = "2PML"} performs a specialized search heuristic that potentially
 #' yields better results than \code{method = "local-maximum"}. The must-link 
-#' functionality and the 2PML algorithm was introduced in Papenberg et al. (2025).
+#' functionality and the 2PML algorithm was introduced in Papenberg, Wang, et al. (2025).
 #' 
 #' The examples illustrate the usage of the \code{must_link} and \code{cannot_link}
 #' arguments. Currently, the different kinds of constraints (arguments \code{must_link}, 
@@ -393,6 +422,10 @@
 #' approach. British Journal of Mathematical and Statistical
 #' Psychology, 73, 275-396. https://doi.org/10.1111/bmsp.12186
 #' 
+#' Papenberg, M., Breuer, M., Diekhoff, M., Tran, N. K., & Klau, G. W. 
+#' (2025). Extending the Bicriterion Approach for Anticlustering: 
+#' Exact and Hybrid Approaches. Advance online publication. Psychometrika.
+#' 
 #' Papenberg, M., & Klau, G. W. (2021). Using anticlustering to partition 
 #' data sets into equivalent parts. Psychological Methods, 26(2), 
 #' 161–174. https://doi.org/10.1037/met0000301.
@@ -413,6 +446,11 @@
 #' Weitz, R. R., & Lakshminarayanan, S. (1998). An empirical comparison of 
 #' heuristic methods for creating maximally diverse groups. Journal of the 
 #' Operational Research Society, 49(6), 635-646. https://doi.org/10.1057/palgrave.jors.2600510
+#' 
+#' Yang, X., Cai, Z., Jin, T., Tang, Z., & Gao, S. (2022). A three-phase search 
+#' approach with dynamic population size for solving the maximally diverse grouping 
+#' problem. European Journal of Operational Research, 302(3), 925-953. 
+#' https://doi.org/10.1016/j.ejor.2022.02.003
 #'
 
 anticlustering <- function(x, K, objective = "diversity", method = "exchange",
@@ -426,16 +464,65 @@ anticlustering <- function(x, K, objective = "diversity", method = "exchange",
                                   categories, repetitions, standardize, cannot_link,
                                   must_link)
 
+  
+  # Preclustering and categorical constraints are both processed in the
+  # variable `categories` after this step:
+  # Preclustering must be done first because it needs the raw features and not (potentially) kplus features, which
+  # would be appended in the next step via get_anticlustering_features()
+  categories <- get_categorical_constraints(x, K, preclustering, categories)
+  
+  # Convert input into usable features for anticlustering, if feature matrix is passed and not custom objective used
+  if (!is_distance_matrix(x) && !is.function(objective)) {
+    x <- get_anticlustering_features(x, objective, standardize)
+    if (any(rowSums(is.na(x)) == ncol(x))) {
+      stop("Some observations only consist of NA, I cannot deal with this.")
+    }
+    if (objective == "kplus") {
+      objective <- "variance" # now has the kplus variables, it is now standard kmeans
+    }
+  }
   x <- to_matrix(x)
   N <- nrow(x)
-  # there is a reason why scaling happens here and below (because of ILP + kplus)
-  if (!is_distance_matrix(x) && standardize == TRUE) {
-    x <- scale(x)
-  }
-  
+
   NUMBER_OF_ANTICLUSTERS <- length(table(initialize_clusters(N, K, NULL)))
   TARGET_GROUPS <- table(initialize_clusters(N, K, NULL))
+  
+  ## Some data handling; in particular, determine whether we need a distance matrix even though we might not have one
+  need_distance_matrix <- FALSE
+  if (!is.function(objective)) { # when custom objective is passed, users need to ensure the data is correct
+    if (objective == "distance") { # for compatibility with very old version...
+      objective <- "diversity"
+    }
+    need_distance_matrix <- objective %in% c("diversity", "average-diversity", "dispersion") # this case is clear - objectives are computed from distances
+    # some algorithms always use distance matrix even for kmeans/kplus that are usually computed from the features directly
+    need_distance_matrix <- need_distance_matrix | method %in% c("3phase", "brusco")
+    need_distance_matrix <- need_distance_matrix | argument_exists(cannot_link)
+    need_distance_matrix <- need_distance_matrix | argument_exists(must_link)
+    need_distance_matrix <- need_distance_matrix | sum(is.na(x)) > 0 # use dist() to deal with NAs.
+  }
 
+  if (need_distance_matrix) {
+    kmeans_type_objective <- objective == "variance"
+    x <- convert_to_distances(x, squared = kmeans_type_objective)
+    if (kmeans_type_objective) { # when using distance matrix, kmeans/kplus are equivalent to average diversity.
+      objective <- "average-diversity"
+    }
+  }
+  
+  if (method == "3phase") {
+    if (length(K) == NUMBER_OF_ANTICLUSTERS) {
+      clusters <- K
+    } else {
+      clusters <- NULL
+    }
+    return(
+      three_phase_search_anticlustering(
+        x, K = NUMBER_OF_ANTICLUSTERS, N = N, clusters = clusters,
+        number_iterations = min(repetitions, 50)
+      )
+    )
+  }
+  
   ## Exact method using ILP
   if (method == "ilp") {
     if (objective == "dispersion") {
@@ -445,11 +532,19 @@ anticlustering <- function(x, K, objective = "diversity", method = "exchange",
   }
   
   if (argument_exists(cannot_link)) {
-    init <- initialize_clusters(N, K, NULL)
     cannot_link <- as.matrix(cannot_link)
-    if (length(K) != N) { # no initial clustering was passed! Solve cannot-link constraints here
-      init <- optimal_cannot_link(N, NUMBER_OF_ANTICLUSTERS, table(init), cannot_link, repetitions)
+    init <- initialize_clusters(N, K, NULL) # only used if clustering is already given
+    if (length(K) != N) {
+      if (NCOL(cannot_link) == 1) {# cannot_link is an ID/grouping vector
+        if (max(table(c(cannot_link))) > K) {
+          stop("Cannot-link constraints cannot be fulfilled.")
+        }
+        init <- t(replicate(max(1, repetitions), categorical_sampling(c(cannot_link), K = K)))
+      } else if (NCOL(cannot_link) == 2) {
+        init <- optimal_cannot_link(N, NUMBER_OF_ANTICLUSTERS, table(init), cannot_link, repetitions)
+      }
     }
+
     return(cannot_link_anticlustering(
       x = x, 
       init_clusters = init,
@@ -462,45 +557,18 @@ anticlustering <- function(x, K, objective = "diversity", method = "exchange",
   if (argument_exists(must_link)) {
     return(
       must_link_anticlustering(
-        convert_to_distances(x), 
+        x, 
         K, must_link = must_link, 
         method = method, 
-        objective = "diversity", 
+        objective = "diversity", # always uses diversity computation in optimization algorithm, even for other objectives (that are implemented through changes in data)
         repetitions = repetitions
       )
     )
   }
 
-  # Preclustering and categorical constraints are both processed in the
-  # variable `categories` after this step:
-  categories <- get_categorical_constraints(x, K, preclustering, categories)
-
-  if (!inherits(objective, "function")) {
-    if (objective == "kplus") {
-      x <- cbind(x, squared_from_mean(x))
-      objective <- "variance"
-    }
-    if (objective == "distance") {
-      objective <- "diversity"
-    }
-  }
-  
-  if (!is_distance_matrix(x) && standardize == TRUE) {
-    x <- scale(x)
-  }
-  
   # BILS by Brusco et al.:
   if (method == "brusco") {
     average_diversity <- ifelse(objective == "average-diversity", TRUE, FALSE)
-    if (objective == "kplus") {
-      x <- kplus_moment_variables(x, 2)
-      objective <- "variance"
-    } 
-    if (objective == "variance") {
-      x <- convert_to_distances(x)^2
-      average_diversity <- TRUE
-      objective <- "average-diversity"
-    }
     return(bicriterion_anticlustering(x, K, repetitions, average_diversity = average_diversity, return = paste0("best-", objective)))
   }
   
@@ -570,4 +638,29 @@ replace_na_by_index <- function(matches) {
   max_group <- max(matches, na.rm = TRUE)
   matches[na_matches] <- max_group + 1:NAs 
   matches
+}
+
+# Convert user input to useful feature matrix
+get_anticlustering_features <- function(x, objective, standardize) {
+  x <- data.frame(x)
+  is_categorical <- sapply(x, class) == "factor"
+  if (sum(is_categorical) > 0) {
+    categorical_variables <- categories_to_binary(x[, is_categorical])
+  } else {
+    categorical_variables <- NULL
+  } 
+  if (sum(!is_categorical) > 0) {
+    numeric_variables <- as.matrix(x[, !is_categorical])
+    if (objective == "kplus") {
+      numeric_variables <- kplus_moment_variables(numeric_variables, 2, FALSE)
+    }
+  } else {
+    numeric_variables <- NULL
+  }
+  
+  all_ <- cbind(numeric_variables, categorical_variables)
+  if (standardize) {
+    all_ <- scale(all_)
+  }
+  all_
 }
