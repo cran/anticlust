@@ -11,12 +11,12 @@ library(anticlust)
 ## -----------------------------------------------------------------------------
 data(penguins)
 # First exclude cases with missing values
-df <- na.omit(penguins)
+df <- na.omit(palmerpenguins::penguins)
 head(df)
 nrow(df)
 
 ## -----------------------------------------------------------------------------
-numeric_vars <- df[, c("bill_len", "bill_dep", "flipper_len", "body_mass")]
+numeric_vars <- df[, c("bill_length_mm", "bill_depth_mm", "flipper_length_mm", "body_mass_g")]
 groups <- anticlustering(
   numeric_vars, 
   K = 3,
@@ -80,4 +80,32 @@ groups <- anticlustering(
 )
 table(groups, df$year, df$species)
 
+
+## -----------------------------------------------------------------------------
+groups1 <- anticlustering(
+  numeric_vars, 
+  K = 3,
+  categories = df$sex, 
+  standardize = TRUE,
+  objective = "kplus", 
+  method = "local-maximum"
+)
+groups2 <- anticlustering(
+  numeric_vars, 
+  K = 3,
+  blocks = df$sex, 
+  standardize = TRUE,
+  objective = "kplus", 
+  method = "local-maximum"
+)
+
+table(df$sex, groups1)
+table(df$sex, groups2)
+
+## -----------------------------------------------------------------------------
+knitr::kable(mean_sd_tab(numeric_vars[df$sex == "female", ], groups1[df$sex == "female"]), row.names = TRUE) # categories argument
+knitr::kable(mean_sd_tab(numeric_vars[df$sex == "female", ], groups2[df$sex == "female"]), row.names = TRUE) # blocks argument
+
+knitr::kable(mean_sd_tab(numeric_vars[df$sex == "male", ], groups1[df$sex == "male"]), row.names = TRUE) # categories argument
+knitr::kable(mean_sd_tab(numeric_vars[df$sex == "male", ], groups2[df$sex == "male"]), row.names = TRUE) # blocks argument
 

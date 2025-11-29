@@ -8,10 +8,16 @@
 input_validation_anticlustering <- function(x, K, objective, method,
                                           preclustering, categories,
                                           repetitions, standardize = FALSE, cannot_link = NULL,
-                                          must_link = NULL) {
+                                          must_link = NULL, blocks = NULL) {
   
   ## Validate feature input
   validate_data_matrix(x)
+  
+  is_df <- inherits(x, "data.frame")
+  if (is_df && !is.function(objective)) {
+    x <- get_anticlustering_features(x, objective, standardize) # this is the input that must be considered
+  }
+  
   x <- as.matrix(x)
   N <- nrow(x)
   unequal_group_sizes <- (length(K) != 1) && (sd(table(initialize_clusters(N, K, NULL))) != 0)
@@ -27,6 +33,9 @@ input_validation_anticlustering <- function(x, K, objective, method,
     if (is.function("objective")) stop("objective can only be a function with method = 'exchange' or method = 'local-maximum'.")
     if (objective %in% "dispersion") {
       stop("objective = dispersion does not work with the 3 phase search algorithm.")
+    }
+    if (argument_exists(categories)) {
+      stop("Using the argument categories does not work with the 3 phase search algorithm.")
     }
     if (unequal_group_sizes && objective %in% c("average-diversity", "variance", "kplus")) {
       stop("The three phase algorithm does not support the average diversity, variance and k-plus objective for unequal-sized groups.")
@@ -100,8 +109,25 @@ input_validation_anticlustering <- function(x, K, objective, method,
   }
   
   ## Merge categories variable so that `length` can be applied:
-  categories <- merge_into_one_variable(categories)
-  
+  if (argument_exists(categories)) {
+    categories <- merge_into_one_variable(categories)
+    validate_input(categories, "categories", not_function = TRUE, len = N)
+  }
+  if (argument_exists(blocks)) {
+    blocks <- merge_into_one_variable(blocks)
+    validate_input(blocks, "blocks", not_function = TRUE, len = N)
+    if (argument_exists(must_link)) stop("Currently, using must-link constraints is not possible within blocks.")
+    if (!method %in% c("exchange", "local-maximum")) {
+      stop("Blocked anticlustering currently only works with method = 'exchange' or 'local-maximum'.")
+    }
+    if (argument_exists(repetitions)) {
+      stop("Cannot use multiple repetitions with blocks.")
+    }
+    if (preclustering) {
+      stop("Cannot use preclustering with blocks.")
+    }
+  }
+
   validate_input(preclustering, "preclustering", len = 1,
                  input_set = c(TRUE, FALSE), not_na = TRUE, not_function = TRUE)
 
@@ -185,7 +211,7 @@ input_validation_anticlustering <- function(x, K, objective, method,
     if (objective %in% c("variance", "kplus") && method == "ilp") {
       stop("You cannot use this function to optimally maximize the kmeans or kplus criterion. Use optimal_anticlustering().")
     }
-    if (objective %in% c("variance", "kplus") && is_distance_matrix(x)) {
+    if (objective %in% c("variance", "kplus") && is_distance_matrix(x) && !is_df) {
         stop("You cannot use a distance matrix with the objective 'variance' or 'kplus'.")
     }
   }

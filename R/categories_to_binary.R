@@ -12,12 +12,13 @@
 #' 
 #' The conversion of categorical variables to binary variables is done via
 #' \code{\link[stats]{model.matrix}}. Since version 0.8.9, each category
-#' of a categorical variable is coded by a separate variable. So this is not
-#' 'dummy' coding, which is often used to encode predictors in statistical 
-#' analysis. Dummy coding uses a reference category that has only zeros for 
-#' each variable, while all other categories consist of a 1 and otherwise zeros. 
-#' This implies that there is a different distance to the reference category 
-#' than among the other categories, which is unwarranted in anticlustering.
+#' of a categorical variable is coded by a separate variable ('one hot' encoding).
+#' So we do not use 'dummy' coding, which is often used to encode predictors 
+#' in statistical analysis. Dummy coding uses a reference category that is not
+#' explicitly modelled via a separate variable. This implies that there is
+#' a different distance to the reference category than among the other 
+#' categories, which is unwarranted in anticlustering (thanks to Gunnar Klau
+#' for noting this). See examples. 
 #' 
 #' This function can be used to include categorical variables as part of the 
 #' optimization criterion in anticlustering, rather than including them as hard constraints as done when using the 
@@ -41,17 +42,34 @@
 #'
 #' @references
 #' 
-#' Papenberg, M. (2024). K-plus Anticlustering: An Improved k-means Criterion for 
-#' Maximizing Between-Group Similarity. British Journal of Mathematical and 
-#' Statistical Psychology, 77(1), 80--102. https://doi.org/10.1111/bmsp.12315
+#' Papenberg, M., Wang, C., Diop, M., Bukhari, S. H., Oskotsky, B., Davidson, B. R., 
+#' Vo, K. C., Liu, B., Irwin, J. C., Combes, A., Gaudilliere, B., Li, J., Stevenson, D. K., 
+#' Klau, G. W., Giudice, L. C., Sirota, M., & Oskotsky, T. T. (2025). Anticlustering
+#' for sample allocation to minimize batch effects. Cell Reports Methods, 5(8), 
+#' 101137. https://doi.org/10.1016/j.crmeth.2025.101137
 #' 
 #' @export
 #'
 #' @examples
 #' 
-#' # How to encode a categorical variable with three levels:
-#' unique(iris$Species)
-#' categories_to_binary(iris$Species)[c(1, 51, 101), ]
+#' # Illustrate why dummy encoding is not appropriate for anticlustering.
+#' # Use 3 elements of the iris data set, with different levels of 'Species'
+#' input <- iris[c(1, 51, 101), "Species", drop = FALSE]
+#' input
+#' # Default dummy encoding: 
+#' (dummy <- model.matrix(~ . , input))
+#' dist(dummy) 
+#' # Distance between versicolor and virginica is larger than among setosa and 
+#' # versicolor, and setosa and virginica. This would bias the anticlustering 
+#' # computation.
+#' (one_hot <- categories_to_binary(input))
+#' dist(one_hot) # all the same distances 
+#' dist(one_hot)^2 # or use squared Euclidean distance (corresponds to Manhattan distance in this case)
+#' dist(one_hot, method = "manhattan")
+#' 
+#' # We could also get one-hot encoding directly via model.matrix(), which is 
+#' # used in categories_to_binary():
+#' model.matrix(~ . -1, input) # suppresses the 'intercept'
 #' 
 #' # Use Schaper data set for anticlustering example
 #' data(schaper2019)
@@ -62,7 +80,7 @@
 #' # - Generate data input for k-means anticlustering -
 #' # We conduct k-plus anticlustering by first generating k-plus variables, 
 #' # and also include the categorical variable as "numeric" input for the 
-#' # k-means optimization (rather than as input for the argument \code{categories})
+#' # k-means optimization (rather than as input for the argument categories)
 #' 
 #' input_data <- cbind(
 #'   kplus_moment_variables(features, T = 2), 
@@ -86,11 +104,17 @@ categories_to_binary <- function(categories, use_combinations = FALSE) {
                  input_set = c(TRUE, FALSE), not_na = TRUE, not_function = TRUE)
   categories <- data.frame(categories)
   categories <- as.data.frame(lapply(categories, factor, exclude = NULL))
+  colnames(categories) <- paste0("X", 1:ncol(categories))
+  ## Does some variable only have 1 value??? Allow this by converting to numeric (i.e., 1!)
+  for (i in 1:ncol(categories)) {
+    if (length(levels(categories[, i])) == 1) {
+      categories[, i] <- 1
+    }
+  }
   combine_by <- ifelse(use_combinations, " * ", " + ")
-  formula_string <- paste("~", paste(colnames(categories), collapse = combine_by), collapse = "")
+  formula_string <- paste("~", paste(colnames(categories), collapse = combine_by), "-1", collapse = "")
   model.matrix(
     as.formula(formula_string), 
-    data = categories,
-    contrasts.arg = lapply(categories, contrasts, contrasts=FALSE) # this ensures that each level of the category has a binary variable
-  )[ ,-1, drop = FALSE]
+    data = categories
+  )
 }
