@@ -28,31 +28,15 @@ document.addEventListener('DOMContentLoaded', function(e) {
   }
 });
 </script>
-<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
-// v0.0.1
-// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
-
-document.addEventListener('DOMContentLoaded', function() {
-  const codeList = document.getElementsByClassName("sourceCode");
-  for (var i = 0; i < codeList.length; i++) {
-    var linkList = codeList[i].getElementsByTagName('a');
-    for (var j = 0; j < linkList.length; j++) {
-      if (linkList[j].innerHTML === "") {
-        linkList[j].setAttribute('aria-hidden', 'true');
-      }
-    }
-  }
-});
-</script>
 
 <style type="text/css">
-  code{white-space: pre-wrap;}
-  span.smallcaps{font-variant: small-caps;}
-  span.underline{text-decoration: underline;}
-  div.column{display: inline-block; vertical-align: top; width: 50%;}
-  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-  ul.task-list{list-style: none;}
-    </style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
 
 
 
@@ -257,29 +241,73 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 
-<p>This vignette documents some “best practices” for anticlustering using the R package <code>anticlust</code>. In many cases, the suggestions pertain to overriding the default values of arguments of <code>anticlustering()</code>, which seems to be a difficult decision for users. However, I advise you: Do not stick with the defaults; check out the results of different anticlustering specifications; repeat the process; play around; read the documentation (especially <code>?anticlustering</code>); change arguments arbitrarily; compare the output. Nothing can break.<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a></p>
-<p>This document uses somewhat imperative language; nuance and explanations are given in the package documentation, the other vignettes, and the papers by Papenberg and Klau (2021; <a href="https://doi.org/10.1037/met0000301" class="uri">https://doi.org/10.1037/met0000301</a>) and Papenberg (2024; <a href="https://doi.org/10.1111/bmsp.12315" class="uri">https://doi.org/10.1111/bmsp.12315</a>). Note that deciding which anticlustering objective to use usually requires substantial content considerations and cannot be reduced to “which one is better”. However, some hints are given below.</p>
+<p>This vignette documents some “best practices” for anticlustering
+using the R package <code>anticlust</code>. In many cases, the
+suggestions pertain to overriding the default values of arguments of
+<code>anticlustering()</code>, which seems to be a difficult decision
+for users. However, I advise you: Do not stick with the defaults; check
+out the results of different anticlustering specifications; repeat the
+process; play around; read the documentation (especially
+<code>?anticlustering</code>); change arguments arbitrarily; compare the
+output. Nothing can break.<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a></p>
+<p>This document uses somewhat imperative language; nuance and
+explanations are given in the package documentation, the other
+vignettes, and the papers by Papenberg and Klau (2021; <a href="https://doi.org/10.1037/met0000301" class="uri">https://doi.org/10.1037/met0000301</a>) and Papenberg (2024;
+<a href="https://doi.org/10.1111/bmsp.12315" class="uri">https://doi.org/10.1111/bmsp.12315</a>). Note that deciding
+which anticlustering objective to use usually requires substantial
+content considerations and cannot be reduced to “which one is better”.
+However, some hints are given below.</p>
 <ul>
-<li>If speed is not an issue (it usually is not), use <code>method = &quot;local-maximum&quot;</code> instead of the default <code>method = &quot;exchange&quot;</code>. <strong>It is unambiguously better.</strong></li>
-<li>If speed is not an issue (it usually is not), use several <code>repetitions</code>.</li>
-<li>Use <code>standardize = TRUE</code> instead of the default <code>standardize = FALSE</code>.<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a></li>
-<li>Do not use the default <code>objective = &quot;diversity&quot;</code> when the group sizes are not equal (preferably, use <code>objective = &quot;kplus&quot;</code> or <code>objective = &quot;average-diversity&quot;</code>).</li>
-<li>If you only care about similarity in mean values, use <code>objective = &quot;variance&quot;</code>.</li>
-<li><strong>You should (probably) not only care about similarity in mean values</strong>: prefer <code>objective = &quot;kplus&quot;</code> over <code>objective = &quot;variance&quot;</code> (or check out the function <code>kplus_anticlustering()</code>).</li>
-<li>If you (only) care about similarity in means and standard deviations, use <code>objective = &quot;kplus&quot;</code> instead of the default <code>objective = &quot;diversity&quot;</code>.</li>
-<li>With k-plus anticlustering, <strong>always</strong> use <code>standardize = TRUE</code>.</li>
-<li>If you want to apply anticlustering on a large data set, read the vignette “Speeding up Anticlustering”.</li>
+<li>If speed is not an issue (it usually is not), use
+<code>method = &quot;local-maximum&quot;</code> instead of the default
+<code>method = &quot;exchange&quot;</code>. <strong>It is unambiguously
+better.</strong></li>
+<li>If speed is not an issue (it usually is not), use several
+<code>repetitions</code>.</li>
+<li>Use <code>standardize = TRUE</code> instead of the default
+<code>standardize = FALSE</code>.<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a></li>
+<li>Do not use the default <code>objective = &quot;diversity&quot;</code> when the
+group sizes are not equal (preferably, use
+<code>objective = &quot;kplus&quot;</code> or
+<code>objective = &quot;average-diversity&quot;</code>).</li>
+<li>If you only care about similarity in mean values, use
+<code>objective = &quot;variance&quot;</code>.</li>
+<li><strong>You should (probably) not only care about similarity in mean
+values</strong>: prefer <code>objective = &quot;kplus&quot;</code> over
+<code>objective = &quot;variance&quot;</code> (or check out the function
+<code>kplus_anticlustering()</code>).</li>
+<li>If you (only) care about similarity in means and standard
+deviations, use <code>objective = &quot;kplus&quot;</code> instead of the default
+<code>objective = &quot;diversity&quot;</code>.</li>
+<li>With k-plus anticlustering, <strong>always</strong> use
+<code>standardize = TRUE</code>.</li>
+<li>If you want to apply anticlustering on a large data set, read the
+vignette “Speeding up Anticlustering”.</li>
 </ul>
 <div id="references" class="section level2">
 <h2>References</h2>
-<p>Papenberg, M., &amp; Klau, G. W. (2021). Using anticlustering to partition data sets into equivalent parts. <em>Psychological Methods, 26</em>(2), 161–174. <a href="https://doi.org/10.1037/met0000301" class="uri">https://doi.org/10.1037/met0000301</a>.</p>
-<p>Papenberg, M. (2024). K-plus Anticlustering: An Improved k-means Criterion for Maximizing Between-Group Similarity. <em>British Journal of Mathematical and Statistical Psychology, 77</em> (1), 80–102. <a href="https://doi.org/10.1111/bmsp.12315" class="uri">https://doi.org/10.1111/bmsp.12315</a></p>
+<p>Papenberg, M., &amp; Klau, G. W. (2021). Using anticlustering to
+partition data sets into equivalent parts. <em>Psychological Methods,
+26</em>(2), 161–174. <a href="https://doi.org/10.1037/met0000301" class="uri">https://doi.org/10.1037/met0000301</a>.</p>
+<p>Papenberg, M. (2024). K-plus Anticlustering: An Improved k-means
+Criterion for Maximizing Between-Group Similarity. <em>British Journal
+of Mathematical and Statistical Psychology, 77</em> (1), 80–102. <a href="https://doi.org/10.1111/bmsp.12315" class="uri">https://doi.org/10.1111/bmsp.12315</a></p>
 </div>
-<div class="footnotes">
+<div class="footnotes footnotes-end-of-document">
 <hr />
 <ol>
-<li id="fn1"><p>Well, actually your R session can break if you use an optimal method (<code>method = &quot;ilp&quot;</code>) with a data set that is too large.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
-<li id="fn2"><p>You might ask why <code>standardize = TRUE</code> is not the default. Actually, there are two reasons. First, the argument was not always available in <code>anticlust</code> and changing the default behaviour of a function when releasing a new version is oftentimes undesirable. Second, it seems like a big decision to me to just change users’ data by default (which is done when standardizing the data). In doubt, just compare the results of using <code>standardize = TRUE</code> and <code>standardize = FALSE</code> and decide for yourself which you like best. Standardization may not be the best choice in all settings.<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn1"><p>Well, actually your R session can break if you use an
+optimal method (<code>method = &quot;ilp&quot;</code>) with a data set that is too
+large.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p>You might ask why <code>standardize = TRUE</code> is not
+the default. Actually, there are two reasons. First, the argument was
+not always available in <code>anticlust</code> and changing the default
+behaviour of a function when releasing a new version is oftentimes
+undesirable. Second, it seems like a big decision to me to just change
+users’ data by default (which is done when standardizing the data). In
+doubt, just compare the results of using <code>standardize = TRUE</code>
+and <code>standardize = FALSE</code> and decide for yourself which you
+like best. Standardization may not be the best choice in all settings.<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
 

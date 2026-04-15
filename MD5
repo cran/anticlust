@@ -1,4 +1,4 @@
-62af14f7ff5582b5203d0e1fb26ec9e6 *DESCRIPTION
+57bbbcabaf3874b46ddbd3b272bdc223 *DESCRIPTION
 372c58878e57f8996f73a1509b8941a6 *LICENSE
 f9a25ab2d0d517e2852710d35aff73ba *NAMESPACE
 0d2b8ea7b04bf597c4bf5402f4b4cf07 *R/Optimal_Dispersion.R
@@ -8,7 +8,7 @@ e0763881f138997c3876e29518970162 *R/brunel2025.R
 b74eeb2e036c5c07f7e1fd0a4b1a6678 *R/c-anticlustering.R
 ed27c6be9a1b7d6fcc484c71135c18c3 *R/cannot_link_anticlustering.R
 aa343044c1521de1243ee3965a0342ad *R/categorical-variable-handling.R
-7ed647ad4ad717ef3254fb49853d57c3 *R/categories_to_binary.R
+84fbc1984a2235cb3610106e4d88fd6f *R/categories_to_binary.R
 77ddc5049b2eb56de57b2e6de3df0df5 *R/descriptives_by_cluster.R
 81d90a3c96a191aa93ae2b34f968263e *R/exact-anticlustering.R
 5d2a9cb427534a03fe9ef139e1f84afa *R/exact-cluster-editing.R
@@ -41,7 +41,7 @@ dd07e08eb32d13057fc32a0c0da6e8d4 *R/schaper2019.R
 fd74391f37b25a6c22d96587524150fd *R/wrapper-k-plus-anticlustering.R
 da2f4578ded61cecda5f86d4734598a0 *R/wrapper-matching.R
 04ca84f32e1a9a33de96472ae655127d *R/wrapper-three-phase-search-dynamic-population-size.R
-4b44c1a202cfe36bf0b64e9e38309bfd *build/vignette.rds
+2fb686072b55852009d5b7267a482326 *build/vignette.rds
 e9e4096ddea642565f25c85234fb00fa *data/brunel2025.rda
 9ba5a431696fd4a95851230af20f4fbd *data/schaper2019.rda
 b0e8df278410268ca7f1ca956c772f35 *inst/CITATION
@@ -51,19 +51,19 @@ b0e8df278410268ca7f1ca956c772f35 *inst/CITATION
 aa664cfb9106b4a7500028598b5e81c7 *inst/data_raw/raw_to_package_data.R
 3412ee63f0df66b9a43986ea976ba638 *inst/doc/Anticlustering_in_2025.R
 125a0ffb8899addd3d7c2a91aa8eb024 *inst/doc/Anticlustering_in_2025.Rmd
-6b14239b519720b4ec9ef9661a43e15c *inst/doc/Anticlustering_in_2025.html
+fde6dcb9e6e7d76d5546fc88b3237906 *inst/doc/Anticlustering_in_2025.html
 5e270ae6034b339c2a13d20a5f7d2dec *inst/doc/Best_practices.R
 24aed8cf8948f682e2754d0395332963 *inst/doc/Best_practices.Rmd
-3477507c0362fb0b143c3b15bd579252 *inst/doc/Best_practices.html
+4e36ab9a2c9bf03a37e3a971e258d017 *inst/doc/Best_practices.html
 000e8ae77911e61d2cc259de8e2ef3bb *inst/doc/Categorical_vars.R
 4bb4e28814d43c9bbcf02234b00547d3 *inst/doc/Categorical_vars.Rmd
-af2c367dec63ce8befc75ac2b9f9025c *inst/doc/Categorical_vars.html
+8ebc8ae74fccf1059ca129234179b26f *inst/doc/Categorical_vars.html
 70e2399a230aea600f44f14e03fa936b *inst/doc/Speeding_up_anticlustering.R
 5b5f7af3e008a37783eaf6c3cd7b3bcc *inst/doc/Speeding_up_anticlustering.Rmd
-de376485e066c344a3cc9692b677f6a5 *inst/doc/Speeding_up_anticlustering.html
+98f2265eddcb38576eaef17034be22b8 *inst/doc/Speeding_up_anticlustering.html
 d192543eece54e820227b028212aa5cd *inst/doc/stimulus-selection.R
 06c442e30353693d7bcc6c6d9a5928e8 *inst/doc/stimulus-selection.Rmd
-146d481e22f3932cd3972292aefae143 *inst/doc/stimulus-selection.html
+01f582a724773ec844c4a6c0d3593f4a *inst/doc/stimulus-selection.html
 6c1c35f1ceee510cde3cd6ac6fa75bc2 *inst/render.sh
 5e0ce108ffe8fba85af7dae89dece7ec *inst/tinytest/test-2pml.R
 5ed818a5bc4f0079500604a9cd09682a *inst/tinytest/test-NAs.R
@@ -93,6 +93,7 @@ cfe2f709c3d71e862742357bbdf1965c *inst/tinytest/test-ilp-solvers.R
 39eb09beb2d1cae591992151c03f7ce8 *inst/tinytest/test-must-link.R
 dd395a0a4461ca39b93ea001dcece922 *inst/tinytest/test-new-kmeans-c-implementation.R
 f9bfb8dd043a7481eb5caa7057731c8f *inst/tinytest/test-objective-value.R
+c3cdbe46a510400fdfcf674119735be6 *inst/tinytest/test-one-hot-encoding.R
 8510139aead3f762c514d2955c1d8b3d *inst/tinytest/test-opt-binpacking.R
 a17aeafb3a6ec3de5c79350058c59358 *inst/tinytest/test-optimal-anticlustering.R
 45d9ea61fb80999b2b8f27de5840408c *inst/tinytest/test-optimal-clustering.R
